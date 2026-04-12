@@ -1,0 +1,16 @@
+{
+  "name": "Confier International",
+  "short_name": "Confier",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#005f73",
+  "theme_color": "#005f73",
+  "description": "Premium, scientifically backed shrimp feed supplements and biotechnology for sustainable aquaculture.",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
