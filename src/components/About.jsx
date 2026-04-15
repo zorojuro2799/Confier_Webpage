@@ -162,7 +162,7 @@ export default function About() {
               gap: '1rem',
               zIndex: 20
             }}>
-              <div style={{ fontSize: isMobile ? '2rem' : '2.8rem', fontWeight: 800, fontFamily: "'Montserrat', sans-serif", lineHeight: 1 }}>15+</div>
+              <div style={{ fontSize: isMobile ? '2rem' : '2.8rem', fontWeight: 800, fontFamily: "'Montserrat', sans-serif", lineHeight: 1 }}>4+</div>
               <div style={{ fontSize: isMobile ? '0.75rem' : '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', lineHeight: 1.3, fontWeight: 600, color: 'var(--teal-light, #A8D5BA)' }}>Years of<br/>Excellence</div>
             </div>
           </div>

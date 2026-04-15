@@ -363,7 +363,7 @@ export default function Products() {
                 <div style={{ color: 'var(--clr-orange)', fontSize: isMobile ? '0.65rem' : '0.75rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '0.25rem' }}>
                   {t(product.subtitle)}
                 </div>
-                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: isMobile ? '1.1rem' : '1.5rem', color: 'var(--clr-teal-dark)', marginBottom: '0.5rem', lineHeight: 1.2 }}>
+                <h3 style={{ fontFamily: "'Caveat', cursive", fontSize: isMobile ? '1.4rem' : '1.8rem', fontWeight: 700, color: 'var(--clr-teal-dark)', marginBottom: '0.5rem', lineHeight: 1.2 }}>
                   {t(product.name)}
                 </h3>
                 {!isMobile && (
@@ -417,7 +417,7 @@ export default function Products() {
             {/* Bottom: Clean Data */}
             <div style={{ padding: '2rem', overflowY: 'auto' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.5rem', color: 'var(--clr-teal-dark)', lineHeight: 1 }}>
+                <h2 style={{ fontFamily: "'Caveat', cursive", fontSize: '3rem', fontWeight: 700, color: 'var(--clr-teal-dark)', lineHeight: 1 }}>
                   {t(activeProduct.name)}
                 </h2>
                 <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.5rem', color: 'var(--clr-orange-warm)', fontWeight: 700 }}>

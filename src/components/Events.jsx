@@ -42,7 +42,7 @@ export default function Events() {
   // Admin Controls State
   const [isAdmin, setIsAdmin] = useState(false); // Toggle to simulate an admin logged in
   const [showAddPost, setShowAddPost] = useState(false);
-  const [newPost, setNewPost] = useState({ imageUrl: '', caption: '', location: '' });
+  const [newPost, setNewPost] = useState({ imageUrl: '', imageFile: null, caption: '', location: '' });
   
   // Comment Input State (keyed by post ID)
   const [commentInputs, setCommentInputs] = useState({});
@@ -94,7 +94,7 @@ export default function Events() {
   const handleCreatePost = (e) => {
     e.preventDefault();
     if (!newPost.imageUrl || !newPost.caption) {
-      alert("Please provide an image URL and a caption.");
+      alert("Please provide an image and a caption.");
       return;
     }
 
@@ -104,7 +104,7 @@ export default function Events() {
       role: "Official Updates",
       location: newPost.location || "Confier HQ",
       timeAgo: "Just now",
-      imageUrl: newPost.imageUrl,
+      imageUrl: newPost.imageUrl, // This is the data URL from FileReader
       caption: newPost.caption,
       likes: 0,
       isLiked: false,
@@ -112,7 +112,7 @@ export default function Events() {
     };
 
     setPosts([createdPost, ...posts]);
-    setNewPost({ imageUrl: '', caption: '', location: '' });
+    setNewPost({ imageUrl: '', imageFile: null, caption: '', location: '' });
     setShowAddPost(false);
   };
 
@@ -178,12 +178,26 @@ export default function Events() {
             {showAddPost && (
               <form onSubmit={handleCreatePost} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '6px', color: '#374151' }}>Image URL *</label>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '6px', color: '#374151' }}>Upload Image *</label>
                   <input 
-                    type="url" placeholder="https://..." required
-                    value={newPost.imageUrl} onChange={e => setNewPost({...newPost, imageUrl: e.target.value})}
+                    type="file" 
+                    accept="image/*"
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files[0]) {
+                        const file = e.target.files[0];
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                          setNewPost({...newPost, imageUrl: event.target.result, imageFile: file});
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
                     style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '0.9rem' }}
+                    required
                   />
+                  {newPost.imageFile && (
+                    <p style={{ fontSize: '0.8rem', color: '#059669', marginTop: '6px' }}>✓ {newPost.imageFile.name}</p>
+                  )}
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '6px', color: '#374151' }}>Location</label>
