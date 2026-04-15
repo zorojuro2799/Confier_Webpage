@@ -480,11 +480,25 @@ export default function Products() {
                 </div>
               )}
 
-              <div style={{ marginTop: '3rem', paddingTop: '1.5rem', borderTop: '1px solid var(--clr-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ fontSize: '0.85rem', color: 'var(--clr-text-muted)' }}>
+              <div style={{ marginTop: '3rem', paddingTop: '1.5rem', borderTop: '1px solid var(--clr-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+                <div style={{ fontSize: '0.85rem', color: 'var(--clr-text-muted)', flex: 1 }}>
                   {t('Need bulk pricing? Translated manuals available.')}
                 </div>
-                <button className="btn-primary">{t('Inquire Now')}</button>
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                  <button 
+                    onClick={() => setActiveProduct(null)}
+                    style={{ padding: '0.75rem 1.5rem', borderRadius: '8px', border: '1px solid var(--clr-border)', background: '#fff', color: 'var(--clr-text-main)', cursor: 'pointer', fontWeight: 600 }}
+                  >
+                    Close
+                  </button>
+                  <button 
+                    onClick={() => setActiveProduct(null)}
+                    className="btn-primary"
+                    style={{ padding: '0.75rem 1.5rem' }}
+                  >
+                    {t('Inquire Now')}
+                  </button>
+                </div>
               </div>
 
             </div>

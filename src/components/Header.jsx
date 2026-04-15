@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, LogOut, User } from 'lucide-react';
 import { useLanguage } from '../LanguageContext.jsx';
+import { useAuth } from '../AuthContext';
+import AuthModal from './AuthModal';
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const { t } = useLanguage();
+  const { user, logOut } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -64,6 +69,76 @@ export default function Header() {
               </a>
             ))}
             <a href="#contact" className="btn-primary" style={{ padding: '0.75rem 1.5rem' }}>{t('nav.contact')}</a>
+            
+            {/* Auth Buttons */}
+            {user ? (
+              <div style={{ position: 'relative' }}>
+                <button 
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  style={{
+                    background: 'var(--clr-teal-light)', border: 'none', color: 'var(--clr-teal-dark)',
+                    padding: '0.5rem 1rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 600,
+                    display: 'flex', alignItems: 'center', gap: '0.5rem'
+                  }}
+                >
+                  <User size={18} /> {user.email?.split('@')[0]}
+                </button>
+                {userMenuOpen && (
+                  <div style={{
+                    position: 'absolute', top: '100%', right: 0, background: '#fff',
+                    border: '1px solid var(--clr-border)', borderRadius: '8px',
+                    boxShadow: 'var(--shadow-md)', marginTop: '0.5rem', zIndex: 1000,
+                    minWidth: '200px'
+                  }}>
+                    <a href="#account" onClick={() => setUserMenuOpen(false)} style={{
+                      display: 'block', padding: '0.75rem 1rem', color: 'var(--clr-text-main)',
+                      textDecoration: 'none', fontSize: '0.9rem', borderBottom: '1px solid var(--clr-border)',
+                      transition: 'background 0.2s'
+                    }} onMouseOver={(e) => e.target.style.background = 'var(--clr-bg-surface)'} onMouseOut={(e) => e.target.style.background = ''}>
+                      My Account
+                    </a>
+                    {user.user_metadata?.role === 'admin' && (
+                      <a href="#admin" onClick={() => setUserMenuOpen(false)} style={{
+                        display: 'block', padding: '0.75rem 1rem', color: 'var(--clr-text-main)',
+                        textDecoration: 'none', fontSize: '0.9rem', borderBottom: '1px solid var(--clr-border)',
+                        transition: 'background 0.2s'
+                      }} onMouseOver={(e) => e.target.style.background = 'var(--clr-bg-surface)'} onMouseOut={(e) => e.target.style.background = ''}>
+                        Admin Panel
+                      </a>
+                    )}
+                    <button
+                      onClick={async () => {
+                        await logOut();
+                        setUserMenuOpen(false);
+                      }}
+                      style={{
+                        width: '100%', padding: '0.75rem 1rem', background: 'none', border: 'none',
+                        color: '#d32f2f', fontSize: '0.9rem', textAlign: 'left', cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', gap: '0.5rem',
+                        transition: 'background 0.2s'
+                      }}
+                      onMouseOver={(e) => e.target.style.background = 'var(--clr-bg-surface)'}
+                      onMouseOut={(e) => e.target.style.background = ''}
+                    >
+                      <LogOut size={18} /> Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button 
+                onClick={() => setAuthModalOpen(true)}
+                style={{
+                  background: 'var(--clr-orange-warm)', border: 'none', color: '#fff',
+                  padding: '0.75rem 1.5rem', borderRadius: '8px', cursor: 'pointer',
+                  fontWeight: 600, transition: 'all 0.2s'
+                }}
+                onMouseOver={(e) => e.target.style.background = 'var(--clr-orange)'}
+                onMouseOut={(e) => e.target.style.background = 'var(--clr-orange-warm)'}
+              >
+                Login / Register
+              </button>
+            )}
           </div>
         </div>
 
@@ -93,8 +168,53 @@ export default function Header() {
             </a>
           ))}
           <a href="#contact" onClick={() => setMobileOpen(false)} className="btn-primary" style={{ marginTop: '0.5rem', textAlign: 'center' }}>{t('nav.contact')}</a>
+          
+          {/* Mobile Auth */}
+          {user ? (
+            <>
+              <div style={{ paddingTop: '1rem', borderTop: '1px solid var(--clr-border)' }}>
+                <div style={{ fontSize: '0.9rem', color: 'var(--clr-text-muted)', marginBottom: '0.5rem' }}>
+                  Signed in as: <strong>{user.email?.split('@')[0]}</strong>
+                </div>
+                <a href="#account" onClick={() => setMobileOpen(false)} style={{
+                  display: 'block', padding: '0.5rem 0', color: 'var(--clr-teal-dark)',
+                  textDecoration: 'none', fontWeight: 600, marginBottom: '0.5rem'
+                }}>
+                  My Account
+                </a>
+                <button
+                  onClick={async () => {
+                    await logOut();
+                    setMobileOpen(false);
+                  }}
+                  style={{
+                    width: '100%', padding: '0.5rem', background: '#d32f2f', color: '#fff',
+                    border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 600
+                  }}
+                >
+                  Logout
+                </button>
+              </div>
+            </>
+          ) : (
+            <button 
+              onClick={() => {
+                setAuthModalOpen(true);
+                setMobileOpen(false);
+              }}
+              style={{
+                background: 'var(--clr-orange-warm)', border: 'none', color: '#fff',
+                padding: '0.75rem 1rem', borderRadius: '8px', cursor: 'pointer',
+                fontWeight: 600, marginTop: '0.5rem'
+              }}
+            >
+              Login / Register
+            </button>
+          )}
         </div>
       )}
+
+      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
 
       {/* Extra CSS for media queries since we used inline styles for speed */}
       <style>{`
