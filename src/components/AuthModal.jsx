@@ -116,7 +116,7 @@ export default function AuthModal({ isOpen, onClose }) {
                   onChange={(e) => setFullName(e.target.value)}
                   placeholder="John Doe"
                   style={{
-                    width: '100%', paddingLeft: '40px', padding: '12px', paddingLeft: '40px',
+                    width: '100%', padding: '12px', paddingLeft: '40px',
                     border: '1px solid var(--clr-border)', borderRadius: '8px',
                     fontSize: '0.95rem', transition: 'all 0.2s',
                     outline: 'none'

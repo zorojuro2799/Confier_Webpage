@@ -1,7 +1,7 @@
 // AI Service using Hugging Face Inference API (Free tier)
 // This creates an intelligent chatbot that understands Confier products
 
-import { products } from './Products';
+import { products } from './components/Products.jsx';
 
 // Create a product knowledge base from our Products array
 const createProductKnowledgeBase = () => {
