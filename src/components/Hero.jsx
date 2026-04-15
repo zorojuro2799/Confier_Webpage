@@ -17,34 +17,70 @@ export default function Hero() {
       {/* Interactive Physics Canvas Background - UNTOUCHED as requested */}
       <TopDownPond />
       
-      <div className="container" style={{ position: 'relative', zIndex: 10, pointerEvents: 'none' }}>
-          <div style={{ color: '#fff', textAlign: 'center', margin: '0 auto', pointerEvents: 'auto' }}>
+      <div className="container" style={{ position: 'relative', zIndex: 10, pointerEvents: 'none', width: '100%' }}>
+          <div style={{ 
+            color: '#fff', 
+            textAlign: 'center', 
+            margin: '0 auto', 
+            pointerEvents: 'auto',
+            maxWidth: '800px',
+            padding: '0 20px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
             <h1 style={{ 
-              fontFamily: 'var(--font-serif)', 
-              fontSize: 'clamp(2.5rem, 5vw, 4.2rem)', 
-              fontWeight: 800, 
-              lineHeight: 1.1, 
+              fontFamily: "'Playfair Display', serif", 
+              fontSize: 'clamp(2.8rem, 6vw, 4.5rem)', 
+              fontWeight: 700, 
+              lineHeight: 1.15, 
               marginBottom: '1.5rem', 
-              letterSpacing: '-0.03em',
-              textShadow: '0 4px 20px rgba(0,0,0,0.5)'
+              letterSpacing: '-0.02em',
+              textShadow: '0 10px 30px rgba(0,0,0,0.5)',
+              color: '#FAFAFA'
             }}>
               {t('hero.title1')}<br/>
-              <span style={{ color: 'var(--clr-teal-light)' }}>{t('hero.title2')}</span>
+              <span style={{ 
+                color: '#A8D5BA', // Soft Green Accent
+                fontStyle: 'italic'
+              }}>{t('hero.title2')}</span>
             </h1>
 
             <p style={{ 
-              fontSize: '1.2rem', 
-              maxWidth: '700px', 
-              margin: '0 auto 2.5rem', 
-              lineHeight: 1.6, 
-              opacity: 0.9,
-              fontWeight: 500
+              fontFamily: "'Inter', sans-serif",
+              fontSize: 'clamp(1rem, 2vw, 1.25rem)', 
+              maxWidth: '650px', 
+              margin: '0 auto 3rem', 
+              lineHeight: 1.8, 
+              color: 'rgba(255,255,255,0.9)',
+              fontWeight: 400,
+              textShadow: '0 2px 10px rgba(0,0,0,0.5)'
             }}>
               {t('hero.subtitle')}
             </p>
 
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <button className="btn-primary" onClick={() => {
+            <div style={{ 
+              display: 'flex', 
+              gap: '1.5rem', 
+              justifyContent: 'center', 
+              flexWrap: 'wrap' 
+            }}>
+              <button 
+                className="btn-primary" 
+                style={{
+                  fontFamily: "'Montserrat', sans-serif",
+                  fontWeight: 600,
+                  letterSpacing: '0.5px',
+                  padding: '1.2rem 2.5rem',
+                  fontSize: '1rem',
+                  boxShadow: '0 10px 20px rgba(0,0,0,0.2)',
+                  border: 'none',
+                  borderRadius: 'var(--radius-md, 8px)',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s'
+                }}
+                onClick={() => {
                 const el = document.getElementById('products');
                 if (el) el.scrollIntoView({ behavior: 'smooth' });
               }}>
@@ -52,12 +88,28 @@ export default function Hero() {
               </button>
               <button 
                 style={{
-                  background: 'rgba(255,255,255,0.08)', color: '#fff', border: '1px solid rgba(255,255,255,0.3)',
-                  padding: '1rem 2.2rem', borderRadius: 'var(--radius-md)', fontWeight: 600, cursor: 'pointer', 
-                  backdropFilter: 'blur(12px)', transition: 'all 0.3s'
+                  fontFamily: "'Montserrat', sans-serif",
+                  background: 'rgba(255,255,255,0.1)', 
+                  color: '#fff', 
+                  border: '1px solid rgba(255,255,255,0.4)',
+                  padding: '1.2rem 2.5rem', 
+                  borderRadius: 'var(--radius-md, 8px)', 
+                  fontWeight: 600, 
+                  letterSpacing: '0.5px',
+                  fontSize: '1rem',
+                  cursor: 'pointer', 
+                  backdropFilter: 'blur(12px)', 
+                  transition: 'all 0.3s',
+                  boxShadow: '0 10px 20px rgba(0,0,0,0.1)'
                 }} 
-                onMouseOver={e => e.currentTarget.style.background='rgba(255,255,255,0.15)'} 
-                onMouseOut={e => e.currentTarget.style.background='rgba(255,255,255,0.08)'}
+                onMouseOver={e => {
+                  e.currentTarget.style.background='rgba(255,255,255,0.2)';
+                  e.currentTarget.style.transform='translateY(-2px)';
+                }} 
+                onMouseOut={e => {
+                  e.currentTarget.style.background='rgba(255,255,255,0.1)';
+                  e.currentTarget.style.transform='translateY(0)';
+                }}
                 onClick={() => {
                   const el = document.getElementById('contact');
                   if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -67,16 +119,6 @@ export default function Hero() {
               </button>
             </div>
             
-            <div style={{ display: 'flex', gap: '5rem', justifyContent: 'center', marginTop: '5rem' }}>
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '2.8rem', fontWeight: 700, color: '#fff', lineHeight: 1 }}>2.5x</div>
-                <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '2px', color: 'var(--clr-teal-light)', fontWeight: 800, marginTop: '0.5rem' }}>{t('hero.stat.growth')}</div>
-              </div>
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '2.8rem', fontWeight: 700, color: '#fff', lineHeight: 1 }}>95%</div>
-                <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '2px', color: 'var(--clr-teal-light)', fontWeight: 800, marginTop: '0.5rem' }}>{t('hero.stat.survival')}</div>
-              </div>
-            </div>
           </div>
       </div>
     </section>

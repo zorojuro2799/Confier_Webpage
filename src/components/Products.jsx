@@ -311,11 +311,22 @@ export default function Products() {
             {t('prod.desc')}
           </p>
         </div>
+        
+        {isMobile && (
+          <style>{`
+            .mobile-carousel::-webkit-scrollbar { display: none; }
+          `}</style>
+        )}
 
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(320px, 1fr))', 
-          gap: isMobile ? '1rem' : '2rem' 
+        <div className={isMobile ? "mobile-carousel" : ""} style={{ 
+          display: isMobile ? 'flex' : 'grid', 
+          gridTemplateColumns: isMobile ? 'none' : 'repeat(auto-fill, minmax(320px, 1fr))', 
+          gap: isMobile ? '1rem' : '2rem',
+          overflowX: isMobile ? 'auto' : 'visible',
+          scrollSnapType: isMobile ? 'x mandatory' : 'none',
+          WebkitOverflowScrolling: 'touch',
+          paddingBottom: isMobile ? '1rem' : '0',
+          scrollbarWidth: 'none' // Firefox fallback
         }}>
           {products.map(product => (
             <div 
@@ -326,7 +337,9 @@ export default function Products() {
                 display: 'flex', 
                 flexDirection: 'column',
                 borderRadius: isMobile ? '16px' : 'var(--radius-lg)',
-                overflow: 'hidden'
+                overflow: 'hidden',
+                flex: isMobile ? '0 0 85%' : 'unset',
+                scrollSnapAlign: isMobile ? 'center' : 'none'
               }}
               onClick={() => setActiveProduct(product)}
             >
@@ -348,18 +361,18 @@ export default function Products() {
               
               <div style={{ padding: isMobile ? '1rem' : '1.5rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <div style={{ color: 'var(--clr-orange)', fontSize: isMobile ? '0.65rem' : '0.75rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '0.25rem' }}>
-                  {product.subtitle}
+                  {t(product.subtitle)}
                 </div>
                 <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: isMobile ? '1.1rem' : '1.5rem', color: 'var(--clr-teal-dark)', marginBottom: '0.5rem', lineHeight: 1.2 }}>
-                  {product.name}
+                  {t(product.name)}
                 </h3>
                 {!isMobile && (
                   <p style={{ fontSize: '0.9rem', color: 'var(--clr-text-muted)', lineHeight: 1.6, flex: 1, marginBottom: '1.5rem' }}>
-                    {product.benefits[0]}
+                    {t(product.benefits[0])}
                   </p>
                 )}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid var(--clr-border)', paddingTop: isMobile ? '0.5rem' : '1rem' }}>
-                  <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--clr-teal-dark)', fontSize: isMobile ? '0.8rem' : '1rem' }}>{product.price}</span>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--clr-teal-dark)', fontSize: isMobile ? '0.8rem' : '1rem' }}>{t(product.price)}</span>
                   {!isMobile && <span style={{ fontSize: '0.85rem', color: 'var(--clr-orange)', fontWeight: 600 }}>{t('prod.details')} →</span>}
                 </div>
               </div>
@@ -392,7 +405,7 @@ export default function Products() {
               </button>
               
               <div style={{ position: 'absolute', top: '20px', left: '20px', background: 'rgba(0,0,0,0.3)', padding: '6px 12px', borderRadius: 'var(--radius-full)', fontSize: '0.75rem', fontFamily: 'var(--font-mono)' }}>
-                Drag to Rotate 3D Model
+                {t('Drag to Rotate 3D Model')}
               </div>
 
               {/* Fake 3D Box for now */}
@@ -405,26 +418,26 @@ export default function Products() {
             <div style={{ padding: '2rem', overflowY: 'auto' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                 <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.5rem', color: 'var(--clr-teal-dark)', lineHeight: 1 }}>
-                  {activeProduct.name}
+                  {t(activeProduct.name)}
                 </h2>
                 <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.5rem', color: 'var(--clr-orange-warm)', fontWeight: 700 }}>
-                  {activeProduct.price}
+                  {t(activeProduct.price)}
                 </div>
               </div>
               
               {activeProduct.tagline && (
                 <p style={{ fontSize: '1.05rem', color: 'var(--clr-teal-dark)', lineHeight: 1.6, marginBottom: '2rem', fontStyle: 'italic', fontWeight: 600, paddingLeft: '1rem', borderLeft: '3px solid var(--clr-orange)' }}>
-                  "{activeProduct.tagline}"
+                  "{t(activeProduct.tagline)}"
                 </p>
               )}
 
               <div style={{ marginTop: '1rem', padding: '1.5rem', background: 'var(--clr-bg-surface)', borderRadius: '12px', border: '1px solid var(--clr-border)' }}>
-                <h4 style={{ color: 'var(--clr-teal-dark)', fontWeight: 800, marginBottom: '1.5rem', fontSize: '1rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Verified Benefits</h4>
+                <h4 style={{ color: 'var(--clr-teal-dark)', fontWeight: 800, marginBottom: '1.5rem', fontSize: '1rem', textTransform: 'uppercase', letterSpacing: '1px' }}>{t('Verified Benefits')}</h4>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   {activeProduct.benefits.map((benefit, idx) => (
                     <li key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', fontSize: '0.95rem', color: 'var(--clr-text-main)', lineHeight: 1.5 }}>
                       <CheckCircle2 size={18} color="var(--clr-orange)" style={{ flexShrink: 0, marginTop: '2px' }} />
-                      <span>{benefit}</span>
+                      <span>{t(benefit)}</span>
                     </li>
                   ))}
                 </ul>
@@ -434,31 +447,31 @@ export default function Products() {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', marginTop: '1.5rem' }}>
                   {activeProduct.composition && (
                     <div style={{ padding: '1.5rem', background: 'var(--clr-bg-surface)', borderRadius: '12px', border: '1px solid var(--clr-border)' }}>
-                       <h4 style={{ color: 'var(--clr-teal-dark)', fontWeight: 800, marginBottom: '1rem', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Composition</h4>
-                       <p style={{ fontSize: '0.9rem', color: 'var(--clr-text-main)', lineHeight: 1.6, margin: 0 }}>{activeProduct.composition}</p>
+                       <h4 style={{ color: 'var(--clr-teal-dark)', fontWeight: 800, marginBottom: '1rem', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>{t('Composition')}</h4>
+                       <p style={{ fontSize: '0.9rem', color: 'var(--clr-text-main)', lineHeight: 1.6, margin: 0 }}>{t(activeProduct.composition)}</p>
                     </div>
                   )}
 
                   {activeProduct.usage && (
                     <div style={{ padding: '1.5rem', background: 'var(--clr-bg-surface)', borderRadius: '12px', border: '1px solid var(--clr-border)' }}>
-                       <h4 style={{ color: 'var(--clr-teal-dark)', fontWeight: 800, marginBottom: '1rem', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Instructions For Use</h4>
+                       <h4 style={{ color: 'var(--clr-teal-dark)', fontWeight: 800, marginBottom: '1rem', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>{t('Instructions For Use')}</h4>
                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                           {activeProduct.usage.dosage && (
                             <div>
-                               <strong style={{ fontSize: '0.85rem', color: 'var(--clr-teal-dark)' }}>Dosage:</strong>
-                               <pre style={{ margin: '0.25rem 0 0 0', fontFamily: 'inherit', fontSize: '0.85rem', color: 'var(--clr-text-main)', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>{activeProduct.usage.dosage}</pre>
+                               <strong style={{ fontSize: '0.85rem', color: 'var(--clr-teal-dark)' }}>{t('Dosage')}:</strong>
+                               <pre style={{ margin: '0.25rem 0 0 0', fontFamily: 'inherit', fontSize: '0.85rem', color: 'var(--clr-text-main)', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>{t(activeProduct.usage.dosage)}</pre>
                             </div>
                           )}
                           {activeProduct.usage.netContent && (
                             <div>
-                               <strong style={{ fontSize: '0.85rem', color: 'var(--clr-teal-dark)' }}>Net Content:</strong>
-                               <span style={{ fontSize: '0.85rem', color: 'var(--clr-text-main)', marginLeft: '0.5rem' }}>{activeProduct.usage.netContent}</span>
+                               <strong style={{ fontSize: '0.85rem', color: 'var(--clr-teal-dark)' }}>{t('Net Content')}:</strong>
+                               <span style={{ fontSize: '0.85rem', color: 'var(--clr-text-main)', marginLeft: '0.5rem' }}>{t(activeProduct.usage.netContent)}</span>
                             </div>
                           )}
                           {activeProduct.usage.caaNo && (
                             <div>
-                               <strong style={{ fontSize: '0.85rem', color: 'var(--clr-teal-dark)' }}>CAA No.:</strong>
-                               <span style={{ fontSize: '0.85rem', color: 'var(--clr-text-main)', marginLeft: '0.5rem' }}>{activeProduct.usage.caaNo}</span>
+                               <strong style={{ fontSize: '0.85rem', color: 'var(--clr-teal-dark)' }}>{t('CAA No.')}:</strong>
+                               <span style={{ fontSize: '0.85rem', color: 'var(--clr-text-main)', marginLeft: '0.5rem' }}>{t(activeProduct.usage.caaNo)}</span>
                             </div>
                           )}
                        </div>
@@ -469,9 +482,9 @@ export default function Products() {
 
               <div style={{ marginTop: '3rem', paddingTop: '1.5rem', borderTop: '1px solid var(--clr-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ fontSize: '0.85rem', color: 'var(--clr-text-muted)' }}>
-                  Need bulk pricing? Translated manuals available.
+                  {t('Need bulk pricing? Translated manuals available.')}
                 </div>
-                <button className="btn-primary">Inquire Now</button>
+                <button className="btn-primary">{t('Inquire Now')}</button>
               </div>
 
             </div>

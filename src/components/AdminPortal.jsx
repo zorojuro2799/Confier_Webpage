@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Lock, LogIn, LayoutDashboard, Database, FileText, Users, LogOut, X } from 'lucide-react';
+import { Shield, Lock, LogIn, LayoutDashboard, Database, FileText, Users, LogOut, X, Newspaper, Bell, MessageCircle, Zap } from 'lucide-react';
 
 export default function AdminPortal() {
   const [isOpen, setIsOpen] = useState(false);
@@ -34,6 +34,46 @@ export default function AdminPortal() {
   };
 
   const closePortal = () => setIsOpen(false);
+
+  // Sample feed data for Latest Updates & Community Feed
+  const feedItems = [
+    {
+      id: 1,
+      type: 'update',
+      title: 'New Probiotic Formula Released',
+      description: 'Revolutionary aquaculture enhancement supplement now available.',
+      timestamp: '2 hours ago',
+      icon: Zap,
+      color: 'var(--clr-orange)'
+    },
+    {
+      id: 2,
+      type: 'community',
+      title: 'Farmer Success Story: 40% Yield Increase',
+      description: 'Farmer from West Coast shares their experience using Confier products.',
+      timestamp: '5 hours ago',
+      icon: MessageCircle,
+      color: 'var(--clr-teal-dark)'
+    },
+    {
+      id: 3,
+      type: 'update',
+      title: 'System Maintenance Scheduled',
+      description: 'Platform upgrade planned for April 20th, 2-4 AM UTC.',
+      timestamp: '1 day ago',
+      icon: Bell,
+      color: 'var(--clr-earth)'
+    },
+    {
+      id: 4,
+      type: 'community',
+      title: 'Community Q&A Session',
+      description: 'Join our experts for a live discussion on sustainable aquaculture practices.',
+      timestamp: '2 days ago',
+      icon: MessageCircle,
+      color: 'var(--clr-teal-dark)'
+    }
+  ];
 
   return (
     <div style={{
@@ -132,7 +172,7 @@ export default function AdminPortal() {
                   <Database size={18} /> Manage Products
                 </button>
                 <button className="admin-nav-btn">
-                  <FileText size={18} /> Add Event Post
+                  <Newspaper size={18} /> Manage Newsroom
                 </button>
                 <button className="admin-nav-btn">
                   <Users size={18} /> Farmer Interactions
@@ -169,7 +209,7 @@ export default function AdminPortal() {
                   <div style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--clr-teal-dark)', fontFamily: 'var(--font-mono)' }}>15</div>
                 </div>
                 <div style={{ background: 'var(--clr-bg-surface)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--clr-border)' }}>
-                  <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--clr-text-muted)', fontWeight: 700, marginBottom: '0.5rem' }}>Published Events</div>
+                  <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--clr-text-muted)', fontWeight: 700, marginBottom: '0.5rem' }}>Newsroom Posts</div>
                   <div style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--clr-teal-dark)', fontFamily: 'var(--font-mono)' }}>12</div>
                 </div>
                 <div style={{ background: 'var(--clr-bg-surface)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--clr-border)' }}>
@@ -178,8 +218,116 @@ export default function AdminPortal() {
                 </div>
               </div>
 
-              <div style={{ background: 'var(--clr-bg-surface)', borderRadius: '16px', border: '1px solid var(--clr-border)', height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--clr-text-muted)' }}>
+              <div style={{ background: 'var(--clr-bg-surface)', borderRadius: '16px', border: '1px solid var(--clr-border)', height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--clr-text-muted)', marginBottom: '2rem' }}>
                 [ System Analytics Chart Placeholder ]
+              </div>
+
+              {/* Latest Updates & Community Feed Section */}
+              <div style={{ background: 'var(--clr-bg-surface)', borderRadius: '16px', border: '1px solid var(--clr-border)', overflow: 'hidden' }}>
+                <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--clr-border)' }}>
+                  <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.3rem', color: 'var(--clr-earth)', margin: 0 }}>
+                    Latest Updates & Community Feed
+                  </h3>
+                  <p style={{ color: 'var(--clr-text-muted)', fontSize: '0.9rem', margin: '0.5rem 0 0 0' }}>
+                    Recent news, updates, and community highlights
+                  </p>
+                </div>
+
+                <div style={{ maxHeight: '350px', overflowY: 'auto' }}>
+                  {feedItems.map((item, index) => {
+                    const IconComponent = item.icon;
+                    return (
+                      <div 
+                        key={item.id}
+                        style={{
+                          padding: '1.5rem',
+                          borderBottom: index < feedItems.length - 1 ? '1px solid var(--clr-border)' : 'none',
+                          display: 'flex',
+                          gap: '1rem',
+                          cursor: 'pointer',
+                          transition: 'background 0.2s',
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0, 95, 115, 0.05)'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                      >
+                        <div style={{
+                          width: '40px',
+                          height: '40px',
+                          borderRadius: '10px',
+                          background: item.color + '15',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0
+                        }}>
+                          <IconComponent size={20} color={item.color} />
+                        </div>
+
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'flex-start',
+                            gap: '1rem',
+                            marginBottom: '0.5rem'
+                          }}>
+                            <h4 style={{
+                              margin: 0,
+                              fontSize: '0.95rem',
+                              fontWeight: 600,
+                              color: 'var(--clr-earth)',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis'
+                            }}>
+                              {item.title}
+                            </h4>
+                            <span style={{
+                              fontSize: '0.75rem',
+                              color: 'var(--clr-text-muted)',
+                              whiteSpace: 'nowrap',
+                              flexShrink: 0
+                            }}>
+                              {item.timestamp}
+                            </span>
+                          </div>
+                          <p style={{
+                            margin: 0,
+                            fontSize: '0.85rem',
+                            color: 'var(--clr-text-muted)',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical'
+                          }}>
+                            {item.description}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div style={{
+                  padding: '1rem 1.5rem',
+                  borderTop: '1px solid var(--clr-border)',
+                  textAlign: 'center'
+                }}>
+                  <button style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--clr-teal-dark)',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    fontSize: '0.9rem',
+                    transition: 'color 0.2s'
+                  }}
+                  onMouseEnter={(e) => e.target.style.color = 'var(--clr-orange)'}
+                  onMouseLeave={(e) => e.target.style.color = 'var(--clr-teal-dark)'}
+                  >
+                    View All Updates →
+                  </button>
+                </div>
               </div>
             </div>
 

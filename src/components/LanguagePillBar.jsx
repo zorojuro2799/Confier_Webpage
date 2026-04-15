@@ -7,17 +7,30 @@ export default function LanguagePillBar() {
   const [showAll, setShowAll] = useState(false);
 
   const primaryLanguages = [
-    { id: 'en-us', label: 'Eng' },
-    { id: 'te', label: 'తెలుగు' },
-    { id: 'hi', label: 'हिंदी' }
+    { id: 'en', label: 'English' },
+    { id: 'te', label: 'Telugu' },
+    { id: 'hi', label: 'Hindi' }
   ];
 
   const secondaryLanguages = [
-    { id: 'en-uk', label: 'Eng (UK)' },
+    { id: 'ta', label: 'Tamil' },
+    { id: 'kn', label: 'Kannada' },
+    { id: 'ml', label: 'Malayalam' },
+    { id: 'vi', label: 'Vietnamese' },
+    { id: 'id', label: 'Indonesian' },
+    { id: 'th', label: 'Thai' },
+    { id: 'zh', label: 'Chinese' },
+    { id: 'bn', label: 'Bengali' },
+    { id: 'es', label: 'Spanish' },
+    { id: 'fr', label: 'French' },
+    { id: 'ar', label: 'Arabic' },
+    { id: 'pt', label: 'Portuguese' },
+    { id: 'ru', label: 'Russian' },
+    { id: 'ja', label: 'Japanese' },
+    { id: 'ko', label: 'Korean' },
     { id: 'de', label: 'German' },
-    { id: 'pa', label: 'ਪੰਜਾਬੀ' },
-    { id: 'mr', label: 'मराठी' },
-    { id: 'ta', label: 'தமிழ்' }
+    { id: 'it', label: 'Italian' },
+    { id: 'tr', label: 'Turkish' }
   ];
 
   const visibleLanguages = showAll ? [...primaryLanguages, ...secondaryLanguages] : primaryLanguages;

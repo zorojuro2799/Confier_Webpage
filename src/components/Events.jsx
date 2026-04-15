@@ -1,150 +1,359 @@
-import React from 'react';
-import { Calendar, MapPin, User, ChevronRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { Heart, MessageCircle, MapPin, User, Trash2, ImagePlus, PlusCircle, CheckCircle2, ShieldAlert } from 'lucide-react';
 import { useLanguage } from '../LanguageContext.jsx';
 
 export default function Events() {
   const { t } = useLanguage();
-  
-  const events = [
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
+  // Initial Instagram-style Posts
+  const [posts, setPosts] = useState([
     { 
       id: 1, 
-      person: "Khuong Duy Nguyen", 
-      title: "Technology Training & Field Visit", 
+      author: "Khuong Duy Nguyen", 
       role: "Business Dev Manager - APAC/ISC", 
-      location: "Confier HQ & Partner Farms",
-      date: "Recent Visit",
-      category: "Field Operations",
+      location: "Confier HQ",
+      timeAgo: "2 days ago",
       imageUrl: "https://images.unsplash.com/photo-1595859703086-130ab7ee6de7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-      desc: "Mr. Duy visited the CIPL team to share valuable insights and provide training on the latest technologies in shrimp culture. Accompanied the CIPL team to various shrimp farms, offering practical guidance.",
+      caption: "Incredible sessions at Confier HQ! Sharing valuable insights and training our team on the absolute latest technologies in sustainable shrimp culture. The future of aquaculture is bright.",
+      likes: 124,
+      isLiked: false,
+      comments: [
+        { id: 101, author: "FarmPro22", text: "Amazing training session! Learned so much." },
+        { id: 102, author: "AquaSpecialist", text: "Can't wait to apply these techniques in the field." }
+      ]
     },
     { 
       id: 2, 
-      person: "Martha Mamora", 
-      title: "Ground Report & Remedies Training", 
-      role: "Application Manager - Aquaculture", 
-      location: "Kakinada & Bhimavaram, AP",
-      date: "Ongoing Initiative",
-      category: "Laboratory Training",
+      author: "Martha Mamora", 
+      role: "Application Manager", 
+      location: "Bhimavaram, AP",
+      timeAgo: "5 days ago",
       imageUrl: "https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-      desc: "Visits frequently to Kakinada and Bhimavaram areas. As part of her visit she also trains Confier staff on various diseases and remedies to ensure our farmers receive the best possible frontline support.",
+      caption: "Ground reports from Bhimavaram today. Training the local Confier staff on advanced disease diagnostics and frontline remedies. Ground-level support is how we ensure farmer success! 🦐🔬",
+      likes: 89,
+      isLiked: true,
+      comments: [
+        { id: 201, author: "LocalFarmer_AP", text: "Thank you for the continuous support Martha!" }
+      ]
     }
-  ];
+  ]);
 
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  // Admin Controls State
+  const [isAdmin, setIsAdmin] = useState(false); // Toggle to simulate an admin logged in
+  const [showAddPost, setShowAddPost] = useState(false);
+  const [newPost, setNewPost] = useState({ imageUrl: '', caption: '', location: '' });
+  
+  // Comment Input State (keyed by post ID)
+  const [commentInputs, setCommentInputs] = useState({});
+
+  // ─── Actions ─────────────────────────────────────
+
+  const handleLike = (postId) => {
+    setPosts(posts.map(p => {
+      if (p.id === postId) {
+        return { ...p, isLiked: !p.isLiked, likes: p.isLiked ? p.likes - 1 : p.likes + 1 };
+      }
+      return p;
+    }));
+  };
+
+  const handleAddComment = (postId) => {
+    const text = commentInputs[postId];
+    if (!text || text.trim() === '') return;
+
+    setPosts(posts.map(p => {
+      if (p.id === postId) {
+        return {
+          ...p,
+          comments: [...p.comments, { id: Date.now(), author: isAdmin ? "Confier Admin" : "GuestUser", text: text.trim() }]
+        };
+      }
+      return p;
+    }));
+    
+    // Clear input
+    setCommentInputs({ ...commentInputs, [postId]: '' });
+  };
+
+  const handleDeleteComment = (postId, commentId) => {
+    setPosts(posts.map(p => {
+      if (p.id === postId) {
+        return { ...p, comments: p.comments.filter(c => c.id !== commentId) };
+      }
+      return p;
+    }));
+  };
+
+  const handleDeletePost = (postId) => {
+    if(window.confirm("Are you sure you want to delete this post?")) {
+      setPosts(posts.filter(p => p.id !== postId));
+    }
+  };
+
+  const handleCreatePost = (e) => {
+    e.preventDefault();
+    if (!newPost.imageUrl || !newPost.caption) {
+      alert("Please provide an image URL and a caption.");
+      return;
+    }
+
+    const createdPost = {
+      id: Date.now(),
+      author: "Confier Admin",
+      role: "Official Updates",
+      location: newPost.location || "Confier HQ",
+      timeAgo: "Just now",
+      imageUrl: newPost.imageUrl,
+      caption: newPost.caption,
+      likes: 0,
+      isLiked: false,
+      comments: []
+    };
+
+    setPosts([createdPost, ...posts]);
+    setNewPost({ imageUrl: '', caption: '', location: '' });
+    setShowAddPost(false);
+  };
 
   return (
-    <section id="events" className="section" style={{ background: '#fafafa', padding: isMobile ? '60px 15px' : '100px 20px' }}>
-      <div className="container" style={{ maxWidth: '1100px', margin: '0 auto' }}>
+    <section id="events" style={{ background: 'var(--bg-section, #F0F4F8)', padding: isMobile ? '60px 10px' : '100px 20px', minHeight: '100vh' }}>
+      <div className="container" style={{ maxWidth: '1200px', margin: '0 auto' }}>
         
-        {/* Section Header */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', marginBottom: isMobile ? '2rem' : '4rem' }}>
+        {/* Section Header & Admin Toggle */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', maxWidth: '650px', margin: '0 auto 2.5rem' }}>
           <span style={{ 
-            background: 'rgba(0,119,182,0.1)', color: 'var(--clr-ocean)', padding: '6px 16px', 
-            borderRadius: '30px', fontSize: '0.75rem', fontWeight: 800, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '1rem' 
+            color: 'var(--teal, #2E8B57)', 
+            fontWeight: 700, 
+            letterSpacing: '1.5px', 
+            textTransform: 'uppercase',
+            fontSize: '0.85rem',
+            background: 'rgba(46, 139, 87, 0.1)',
+            padding: '8px 16px',
+            borderRadius: '20px',
+            marginBottom: '1rem'
           }}>
-            {t('events.tag')}
+            {t('events.tag') || t('Community Feed')}
           </span>
-          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: isMobile ? '2.2rem' : 'clamp(2.5rem, 5vw, 3.5rem)', color: 'var(--clr-earth)', lineHeight: 1.1, marginBottom: '1rem' }}>
-            Latest Events
+          <h2 style={{ 
+            fontFamily: "'Playfair Display', serif", 
+            fontSize: isMobile ? '2.2rem' : '2.8rem', 
+            color: 'var(--earth, #005B96)', 
+            lineHeight: 1.1, 
+            marginBottom: '1rem' 
+          }}>
+            {t('Latest Updates')}
           </h2>
-          <p style={{ color: 'var(--clr-text-muted)', fontSize: isMobile ? '0.95rem' : '1.1rem', maxWidth: '600px', lineHeight: 1.6 }}>
-            Stay updated with Confier's internal training programs and laboratory innovations.
-          </p>
+          
+          {/* Admin Simulator Toggle */}
+          <button 
+            onClick={() => setIsAdmin(!isAdmin)}
+            style={{
+              marginTop: '1rem',
+              display: 'flex', alignItems: 'center', gap: '8px',
+              padding: '8px 16px', borderRadius: '20px',
+              background: isAdmin ? '#FEF2F2' : '#FFF',
+              border: isAdmin ? '1px solid #FCA5A5' : '1px solid #E5E7EB',
+              color: isAdmin ? '#DC2626' : '#6B7280',
+              fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+          >
+            <ShieldAlert size={16} />
+            {isAdmin ? t('Admin Mode Active (Click to disable)') : t('Simulate Admin Access')}
+          </button>
         </div>
 
-        {/* Editorial Grid Layout */}
+        {/* Admin Create Post Form */}
+        {isAdmin && (
+          <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #E5E7EB', overflow: 'hidden', maxWidth: '650px', margin: '0 auto 2rem' }}>
+            <div 
+              onClick={() => setShowAddPost(!showAddPost)}
+              style={{ padding: '1rem 1.5rem', background: '#F9FAFB', borderBottom: '1px solid #E5E7EB', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+            >
+              <strong style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#111827' }}><PlusCircle size={18}/> {t('Create New Post')}</strong>
+              <span style={{ fontSize: '0.85rem', color: '#6B7280' }}>{showAddPost ? t('Hide') : t('Expand')}</span>
+            </div>
+            
+            {showAddPost && (
+              <form onSubmit={handleCreatePost} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '6px', color: '#374151' }}>Image URL *</label>
+                  <input 
+                    type="url" placeholder="https://..." required
+                    value={newPost.imageUrl} onChange={e => setNewPost({...newPost, imageUrl: e.target.value})}
+                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '0.9rem' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '6px', color: '#374151' }}>Location</label>
+                  <input 
+                    type="text" placeholder="e.g., Kakinada Farm" 
+                    value={newPost.location} onChange={e => setNewPost({...newPost, location: e.target.value})}
+                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '0.9rem' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '6px', color: '#374151' }}>Caption *</label>
+                  <textarea 
+                    rows="3" placeholder="Write a caption..." required
+                    value={newPost.caption} onChange={e => setNewPost({...newPost, caption: e.target.value})}
+                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '0.9rem', resize: 'vertical' }}
+                  />
+                </div>
+                <button type="submit" style={{ background: 'var(--teal-dark, #005B96)', color: 'white', padding: '12px', borderRadius: '8px', border: 'none', fontWeight: 600, cursor: 'pointer' }}>
+                  Post to Feed
+                </button>
+              </form>
+            )}
+          </div>
+        )}
+
+        {/* The Feed */}
         <div style={{ 
           display: 'grid', 
-          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(380px, 1fr))', 
-          gap: isMobile ? '1.5rem' : '3rem' 
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', 
+          gap: '2rem',
+          alignItems: 'start'
         }}>
-          
-          {events.map((ev) => (
-            <div key={ev.id} style={{ 
-              background: '#fff', borderRadius: '24px', overflow: 'hidden', 
-              boxShadow: '0 20px 60px rgba(0,0,0,0.06)', transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-              display: 'flex', flexDirection: 'column', cursor: 'pointer'
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.transform = 'translateY(-8px)';
-              e.currentTarget.style.boxShadow = '0 30px 80px rgba(0,0,0,0.1)';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 20px 60px rgba(0,0,0,0.06)';
-            }}
-            >
+          {posts.map((post) => (
+            <div key={post.id} style={{ 
+              background: '#fff', 
+              borderRadius: '16px', 
+              border: '1px solid #E5E7EB',
+              boxShadow: '0 4px 6px rgba(0,0,0,0.02)',
+              overflow: 'hidden'
+            }}>
               
-              {/* Massive Feature Image */}
-              <div style={{ position: 'relative', width: '100%', height: '300px', backgroundColor: 'var(--clr-earth)' }}>
-                <img 
-                  src={ev.imageUrl} 
-                  alt={ev.title} 
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s', opacity: 0.9 }} 
-                />
-                
-                {/* Gradient Overlay for Text Readability */}
-                <div style={{ 
-                  position: 'absolute', inset: 0, 
-                  background: 'linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, transparent 40%, rgba(0,0,0,0.8) 100%)' 
-                }} />
-
-                {/* Top Right Date Tag */}
-                <div style={{ 
-                  position: 'absolute', top: '20px', right: '20px', background: 'rgba(255,255,255,0.2)', 
-                  backdropFilter: 'blur(10px)', color: '#fff', padding: '6px 14px', borderRadius: '20px', 
-                  fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px', border: '1px solid rgba(255,255,255,0.3)'
-                }}>
-                  <Calendar size={14} /> {ev.date}
-                </div>
-
-                {/* Bottom Left Avatar & Person Overlay */}
-                <div style={{ position: 'absolute', bottom: '20px', left: '20px', right: '20px', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <div style={{ 
-                    width: '48px', height: '48px', background: '#fff', borderRadius: '50%', 
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--clr-teal-dark)', flexShrink: 0 
-                  }}>
-                    <User size={24} />
+              {/* Post Header */}
+              <div style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ width: '40px', height: '40px', background: 'linear-gradient(45deg, var(--teal-dark), var(--teal))', borderRadius: '50%', padding: '2px' }}>
+                    <div style={{ width: '100%', height: '100%', background: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-mid)' }}>
+                      <User size={20} />
+                    </div>
                   </div>
                   <div>
-                    <div style={{ color: '#fff', fontWeight: 700, fontSize: '1.1rem', marginBottom: '2px', textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
-                      {ev.person}
+                    <div style={{ fontWeight: 700, color: '#111827', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      {post.author}
+                      <CheckCircle2 size={14} color="var(--teal, #2E8B57)" />
                     </div>
-                    <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.85rem', fontWeight: 500 }}>
-                      {ev.role}
+                    <div style={{ fontSize: '0.8rem', color: '#6B7280', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      {post.location && <><MapPin size={12}/> {post.location} • </>}
+                      {post.timeAgo}
                     </div>
                   </div>
                 </div>
+
+                {isAdmin && (
+                  <button 
+                    onClick={() => handleDeletePost(post.id)}
+                    style={{ background: 'none', border: 'none', color: '#DC2626', cursor: 'pointer', padding: '8px' }}
+                    title="Delete Post"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                )}
               </div>
 
-              {/* Clean White Card Text Area */}
-              <div style={{ padding: '2.5rem 2rem', display: 'flex', flexDirection: 'column', flex: 1 }}>
-                
-                <div style={{ color: 'var(--clr-orange)', fontSize: '0.75rem', fontWeight: 800, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '1rem' }}>
-                  {ev.category}
-                </div>
+              {/* Post Image */}
+              <div style={{ width: '100%', backgroundColor: '#f3f4f6', borderTop: '1px solid #E5E7EB', borderBottom: '1px solid #E5E7EB' }}>
+                <img
+                  src={post.imageUrl}
+                  alt="Post content"
+                  style={{ width: '100%', height: 'auto', maxHeight: '600px', objectFit: 'cover', display: 'block' }}
+                  onError={(e) => { e.target.src = '/Shrimp (18).webp'; }}
+                />              </div>
 
-                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.75rem', color: 'var(--clr-earth)', marginBottom: '1.25rem', lineHeight: 1.3 }}>
-                  {ev.title}
-                </h3>
-                
-                <p style={{ color: 'var(--clr-text-muted)', fontSize: '1.05rem', lineHeight: 1.7, marginBottom: '2rem', flex: 1 }}>
-                  {ev.desc}
-                </p>
-                
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(0,0,0,0.06)', paddingTop: '1.5rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--clr-text-muted)', fontSize: '0.9rem', fontWeight: 500 }}>
-                    <MapPin size={18} color="var(--clr-teal)" />
-                    {ev.location}
-                  </div>
-                  <div style={{ color: 'var(--clr-teal-dark)', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 700, fontSize: '0.9rem' }}>
-                    Read Full <ChevronRight size={16} />
-                  </div>
-                </div>
-
+              {/* Post Actions (Like / Comment) */}
+              <div style={{ padding: '12px 16px', display: 'flex', gap: '16px' }}>
+                <button onClick={() => handleLike(post.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: post.isLiked ? '#EF4444' : '#111827', transition: 'transform 0.1s' }}>
+                  <Heart size={26} fill={post.isLiked ? '#EF4444' : 'none'} />
+                </button>
+                <button style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: '#111827' }}>
+                  <MessageCircle size={26} />
+                </button>
               </div>
+
+              {/* Likes Count */}
+              <div style={{ padding: '0 16px', fontWeight: 700, fontSize: '0.95rem', color: '#111827', marginBottom: '8px' }}>
+                {post.likes.toLocaleString()} likes
+              </div>
+
+              {/* Caption */}
+              <div style={{ padding: '0 16px', fontSize: '0.95rem', color: '#111827', lineHeight: 1.5, marginBottom: '12px' }}>
+                <span style={{ fontWeight: 700, marginRight: '8px' }}>{post.author}</span>
+                {post.caption}
+              </div>
+
+              {/* Comments Section */}
+              <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '16px' }}>
+                {post.comments.length > 0 ? (
+                  post.comments.map(comment => (
+                    <div key={comment.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', fontSize: '0.9rem', lineHeight: 1.4 }}>
+                      <div>
+                        <span style={{ fontWeight: 700, marginRight: '6px', color: '#111827' }}>{comment.author}</span>
+                        <span style={{ color: '#374151' }}>{comment.text}</span>
+                      </div>
+                      {isAdmin && (
+                        <button 
+                          onClick={() => handleDeleteComment(post.id, comment.id)}
+                          style={{ background: 'none', border: 'none', color: '#9CA3AF', cursor: 'pointer', padding: '0 4px' }}
+                          title="Delete Comment"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <div style={{ fontSize: '0.85rem', color: '#9CA3AF' }}>No comments yet. Be the first to comment!</div>
+                )}
+              </div>
+
+              {/* Add Comment Input */}
+              <div style={{ 
+                padding: '12px 16px', 
+                borderTop: '1px solid #E5E7EB', 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '12px' 
+              }}>
+                <input 
+                  type="text" 
+                  placeholder="Add a comment..." 
+                  value={commentInputs[post.id] || ''}
+                  onChange={(e) => setCommentInputs({...commentInputs, [post.id]: e.target.value})}
+                  onKeyPress={(e) => e.key === 'Enter' && handleAddComment(post.id)}
+                  style={{ 
+                    flex: 1, border: 'none', outline: 'none', 
+                    fontSize: '0.95rem', background: 'transparent' 
+                  }}
+                />
+                <button 
+                  onClick={() => handleAddComment(post.id)}
+                  disabled={!commentInputs[post.id]?.trim()}
+                  style={{ 
+                    background: 'none', border: 'none', 
+                    color: commentInputs[post.id]?.trim() ? 'var(--teal-dark, #005B96)' : '#9CA3AF', 
+                    fontWeight: 600, cursor: commentInputs[post.id]?.trim() ? 'pointer' : 'default',
+                    fontSize: '0.95rem'
+                  }}
+                >
+                  Post
+                </button>
+              </div>
+
             </div>
           ))}
+          
+          {posts.length === 0 && (
+            <div style={{ textAlign: 'center', padding: '4rem', color: '#6B7280', background: '#fff', borderRadius: '16px', border: '1px dashed #E5E7EB' }}>
+              <ImagePlus size={48} style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
+              <h3>No posts yet</h3>
+              <p>Turn on Admin Mode to create the first post.</p>
+            </div>
+          )}
         </div>
 
       </div>

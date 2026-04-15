@@ -18,6 +18,7 @@ export default function Header() {
     { name: t('nav.range'), href: '#products' },
     { name: t('nav.results'), href: '#stories' },
     { name: t('nav.rnd'), href: '#rnd' },
+    { name: t('nav.updates'), href: '#events' },
   ];
 
   return (

@@ -13,7 +13,7 @@ export default function Contact() {
             <span className="section-tag">{t('nav.contact')}</span>
             <h2 className="text-title" style={{ color: 'var(--clr-teal-dark)' }}>{t('contact.title')}</h2>
             <p style={{ color: 'var(--clr-text-muted)', fontSize: '1.1rem', lineHeight: 1.7, marginBottom: '2.5rem' }}>
-              Contact us about anything related to our formulations, bulk pricing, or technical support. We'll do our best to get back to you as soon as possible.
+              {t('contact.desc')}
             </p>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -22,7 +22,7 @@ export default function Contact() {
                   <MapPin size={24} />
                 </div>
                 <div>
-                  <h4 style={{ fontWeight: 700, color: 'var(--clr-text-main)', marginBottom: '0.25rem' }}>Head Office</h4>
+                  <h4 style={{ fontWeight: 700, color: 'var(--clr-text-main)', marginBottom: '0.25rem' }}>{t('contact.hq')}</h4>
                   <p style={{ color: 'var(--clr-text-muted)', fontSize: '0.9rem', lineHeight: 1.5 }}>
                     Plot-480, RK Township, Lankelapalem,<br/>
                     Visakhapatnam, Andhra Pradesh 531019
@@ -35,7 +35,7 @@ export default function Contact() {
                   <Phone size={24} />
                 </div>
                 <div>
-                  <h4 style={{ fontWeight: 700, color: 'var(--clr-text-main)', marginBottom: '0.25rem' }}>Call Us</h4>
+                  <h4 style={{ fontWeight: 700, color: 'var(--clr-text-main)', marginBottom: '0.25rem' }}>{t('contact.call')}</h4>
                   <p style={{ color: 'var(--clr-text-muted)', fontSize: '0.9rem' }}>+91 89686 97989</p>
                 </div>
               </div>
@@ -45,7 +45,7 @@ export default function Contact() {
                   <Mail size={24} />
                 </div>
                 <div>
-                  <h4 style={{ fontWeight: 700, color: 'var(--clr-text-main)', marginBottom: '0.25rem' }}>Email Support</h4>
+                  <h4 style={{ fontWeight: 700, color: 'var(--clr-text-main)', marginBottom: '0.25rem' }}>{t('contact.email')}</h4>
                   <p style={{ color: 'var(--clr-text-muted)', fontSize: '0.9rem' }}>Customercare@confierintl.com</p>
                 </div>
               </div>
@@ -54,14 +54,14 @@ export default function Contact() {
 
           <div style={{ background: 'var(--clr-bg-primary)', padding: '3rem', borderRadius: 'var(--radius-lg)' }}>
             <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', marginBottom: '1.5rem', color: 'var(--clr-text-main)' }}>
-              Send a Message
+              {t('contact.send')}
             </h3>
             <form style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }} onSubmit={(e) => { e.preventDefault(); alert("Thanks for reaching out! We will contact you soon."); }}>
-              <input type="text" placeholder="Your Full Name" required style={{ width: '100%', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--clr-border)', outline: 'none', background: '#fff' }} />
-              <input type="email" placeholder="Your Email Address" required style={{ width: '100%', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--clr-border)', outline: 'none', background: '#fff' }} />
-              <textarea placeholder="How can we help?" rows="4" required style={{ width: '100%', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--clr-border)', outline: 'none', background: '#fff', resize: 'vertical' }}></textarea>
+              <input type="text" placeholder={t('contact.name')} required style={{ width: '100%', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--clr-border)', outline: 'none', background: '#fff' }} />
+              <input type="email" placeholder={t('contact.email_placeholder')} required style={{ width: '100%', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--clr-border)', outline: 'none', background: '#fff' }} />
+              <textarea placeholder={t('contact.help')} rows="4" required style={{ width: '100%', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--clr-border)', outline: 'none', background: '#fff', resize: 'vertical' }}></textarea>
               <button className="btn-primary" type="submit" style={{ width: '100%', marginTop: '0.5rem' }}>
-                <Send size={18} /> Submit Request
+                <Send size={18} /> {t('contact.submit')}
               </button>
             </form>
           </div>
