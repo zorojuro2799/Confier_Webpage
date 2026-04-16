@@ -83,14 +83,14 @@ export default function TopDownPond() {
       getColors() {
         const patterns = [
           // All variants use same tan/brown base with subtle shifts
-          { main: '#d4a574', dark: '#c9956f', light: '#d9b089', leg: 'rgba(212, 165, 116, 0.4)' },
-          { main: '#d0a070', dark: '#c89568', light: '#d9b089', leg: 'rgba(208, 160, 112, 0.4)' },
-          { main: '#d8aa7c', dark: '#cb9d6f', light: '#e0b89a', leg: 'rgba(216, 170, 124, 0.4)' },
-          { main: '#cc9d68', dark: '#bf8f5f', light: '#dab088', leg: 'rgba(204, 157, 104, 0.4)' },
-          { main: '#d5a178', dark: '#c89a6f', light: '#dfb394', leg: 'rgba(213, 161, 120, 0.4)' },
-          { main: '#d2a075', dark: '#c59867', light: '#dcb192', leg: 'rgba(210, 160, 117, 0.4)' },
-          { main: '#cfa070', dark: '#c39862', light: '#d9b089', leg: 'rgba(207, 160, 112, 0.4)' },
-          { main: '#d6a57a', dark: '#c99d70', light: '#dfb59a', leg: 'rgba(214, 165, 122, 0.4)' }
+          { main: '#e3c08f', dark: '#a66a45', light: '#f1d7b1', leg: 'rgba(166, 106, 69, 0.38)' },
+          { main: '#e0bb88', dark: '#9e6241', light: '#f0d0a2', leg: 'rgba(158, 98, 65, 0.38)' },
+          { main: '#e7c792', dark: '#b0724a', light: '#f4e0b8', leg: 'rgba(176, 114, 74, 0.38)' },
+          { main: '#dcb57f', dark: '#8f563a', light: '#eed0a8', leg: 'rgba(143, 86, 58, 0.38)' },
+          { main: '#e4c08d', dark: '#a56945', light: '#f2d8af', leg: 'rgba(165, 105, 69, 0.38)' },
+          { main: '#dfb985', dark: '#9a5f3e', light: '#f0d5b0', leg: 'rgba(154, 95, 62, 0.38)' },
+          { main: '#e9c590', dark: '#b0734b', light: '#f6e1b8', leg: 'rgba(176, 115, 75, 0.38)' },
+          { main: '#dfba8a', dark: '#9b623f', light: '#f1d4a9', leg: 'rgba(155, 98, 63, 0.38)' }
         ];
         return patterns[this.patternType];
       }
@@ -252,6 +252,16 @@ export default function TopDownPond() {
           ctx.fillStyle = main;
           ctx.fillRect(-segWidth, -segHeight, segWidth * 2, segHeight * 2);
 
+          // Soft “skin” lighting: highlight + shadow (matte, not metallic)
+          ctx.fillStyle = hexToRgba(light, 0.16);
+          ctx.beginPath();
+          ctx.ellipse(-segWidth * 0.22, -segHeight * 0.18, segWidth * 0.55, segHeight * 0.42, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = hexToRgba(dark, 0.10);
+          ctx.beginPath();
+          ctx.ellipse(segWidth * 0.18, segHeight * 0.22, segWidth * 0.45, segHeight * 0.38, 0, 0, Math.PI * 2);
+          ctx.fill();
+
           const patternMode = this.patternType % 4;
 
           if (patternMode === 0) {
@@ -262,7 +272,7 @@ export default function TopDownPond() {
               const t = (b + 1) / (bandCount + 1);
               const y = (-segHeight * 0.78) + t * (segHeight * 1.56);
               const bandH = segHeight * (0.12 + 0.03 * ((b + i) % 2));
-              const a = 0.12 + 0.03 * ((b + this.patternType) % 2);
+              const a = 0.16 + 0.05 * ((b + this.patternType) % 2);
               ctx.fillStyle = hexToRgba(dark, a);
               ctx.fillRect(-segWidth * 1.05, y, segWidth * 2.1, bandH);
             }
@@ -274,7 +284,7 @@ export default function TopDownPond() {
               const sx = (Math.sin((this.patternType + 1) * (b + 2)) * 0.5 + 0.5) * segWidth * 1.4 - segWidth * 0.7;
               const sy = (Math.cos((this.patternType + 3) * (b + 2)) * 0.5 + 0.5) * segHeight * 1.1 - segHeight * 0.55;
               const rr = segHeight * (0.05 + ((b + i) % 3) * 0.01);
-              const a = 0.09 + 0.04 * ((b + i) % 2);
+              const a = 0.12 + 0.05 * ((b + i) % 2);
               ctx.fillStyle = hexToRgba(dark, a);
               ctx.beginPath();
               ctx.arc(sx, sy, rr, 0, Math.PI * 2);
@@ -283,25 +293,31 @@ export default function TopDownPond() {
           } else {
             // Mixed gentle banding: only 1-2 faint bands
             const bandCount = 1 + (i % 2);
-            ctx.filter = 'blur(0.8px)';
+            ctx.filter = 'blur(0.65px)';
             for (let b = 0; b < bandCount; b++) {
               const t = 0.35 + 0.3 * b + 0.08 * Math.sin((this.patternType + i) * 1.7);
               const y = (-segHeight * 0.78) + t * (segHeight * 1.56);
-              const bandH = segHeight * 0.12;
-              ctx.fillStyle = hexToRgba(dark, 0.11);
+              const bandH = segHeight * 0.13;
+              ctx.fillStyle = hexToRgba(dark, 0.15);
               ctx.fillRect(-segWidth * 1.05, y, segWidth * 2.1, bandH);
             }
             ctx.filter = 'none';
           }
 
           // Texture speckles (soft, not bright/metallic)
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
+          ctx.fillStyle = hexToRgba(light, 0.22);
           const spotR = sz * 0.014;
           ctx.beginPath();
           ctx.arc(0, segHeight * 0.08, spotR, 0, Math.PI * 2);
           ctx.fill();
+          // Darker spot contrast
+          ctx.fillStyle = hexToRgba(dark, 0.16);
+          ctx.beginPath();
+          ctx.arc(-segWidth * 0.12, segHeight * 0.04, spotR * 0.9, 0, Math.PI * 2);
+          ctx.fill();
 
           if (i % 2 === 0) {
+            ctx.fillStyle = hexToRgba(light, 0.18);
             ctx.beginPath();
             ctx.arc(sz * 0.035, -segHeight * 0.08, spotR * 0.85, 0, Math.PI * 2);
             ctx.arc(-sz * 0.03, segHeight * 0.18, spotR * 0.7, 0, Math.PI * 2);
@@ -313,8 +329,8 @@ export default function TopDownPond() {
           // Extremely subtle outline (reduces “robot/tiger armor” look)
           ctx.beginPath();
           ctx.ellipse(0, 0, segWidth, segHeight, 0, 0, Math.PI * 2);
-          ctx.strokeStyle = hexToRgba(dark, 0.22);
-          ctx.lineWidth = 0.55;
+          ctx.strokeStyle = hexToRgba(dark, 0.14);
+          ctx.lineWidth = 0.45;
           ctx.stroke();
 
           // Swimmerets
@@ -387,7 +403,7 @@ export default function TopDownPond() {
         x: Math.random() * width,
         y: Math.random() * height,
         r: Math.random() * 0.9 + 0.25,
-        a: Math.random() * 0.05 + 0.02
+        a: Math.random() * 0.07 + 0.03
       });
     }
 
@@ -399,14 +415,14 @@ export default function TopDownPond() {
 
       // Unified pond water color (lighter bluish, no “separated” layers)
       const waterGrad = ctx.createLinearGradient(0, 0, 0, height);
-      waterGrad.addColorStop(0, '#49bcd0');      // Surface
-      waterGrad.addColorStop(0.55, '#248da6');   // Mid-water
-      waterGrad.addColorStop(1, '#114f66');      // Deeper water
+      waterGrad.addColorStop(0, '#77e2f0');      // Surface (more vibrant)
+      waterGrad.addColorStop(0.55, '#2aa6c0');   // Mid-water
+      waterGrad.addColorStop(1, '#0b4b63');      // Deeper water
       ctx.fillStyle = waterGrad;
       ctx.fillRect(0, 0, width, height);
 
       // Gentle bottom haze (keeps water realistic without “blocks”)
-      ctx.fillStyle = 'rgba(9, 52, 66, 0.16)';
+      ctx.fillStyle = 'rgba(6, 43, 56, 0.14)';
       ctx.fillRect(0, height * 0.78, width, height * 0.22);
 
       // Grain overlay
@@ -437,7 +453,7 @@ export default function TopDownPond() {
         
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(150, 210, 210, ${p.opacity * 0.65})`;
+        ctx.fillStyle = `rgba(105, 190, 185, ${p.opacity * 0.75})`;
         ctx.fill();
       });
 
