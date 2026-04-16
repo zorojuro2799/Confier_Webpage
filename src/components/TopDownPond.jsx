@@ -8,10 +8,13 @@ export default function TopDownPond() {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     
+    let dpr = Math.min(window.devicePixelRatio || 1, 2);
     let width = canvas.offsetWidth;
     let height = canvas.offsetHeight;
-    canvas.width = width;
-    canvas.height = height;
+    canvas.width = Math.max(1, Math.floor(width * dpr));
+    canvas.height = Math.max(1, Math.floor(height * dpr));
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.imageSmoothingEnabled = true;
 
     const isMobile = width < 768;
     const scaleFactor = isMobile ? 0.6 : 1;
@@ -54,10 +57,13 @@ export default function TopDownPond() {
     window.addEventListener('mouseout', handleReset);
     
     const handleResize = () => {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
       width = canvas.offsetWidth;
       height = canvas.offsetHeight;
-      canvas.width = width;
-      canvas.height = height;
+      canvas.width = Math.max(1, Math.floor(width * dpr));
+      canvas.height = Math.max(1, Math.floor(height * dpr));
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.imageSmoothingEnabled = true;
     };
     window.addEventListener('resize', handleResize);
 
@@ -71,6 +77,8 @@ export default function TopDownPond() {
         this.speedX = (Math.random() - 0.5) * this.baseSpeed;
         this.speedY = (Math.random() - 0.5) * this.baseSpeed;
         this.angle = Math.atan2(this.speedY, this.speedX);
+        this.renderX = this.x;
+        this.renderY = this.y;
         
         this.swimCycle = Math.random() * Math.PI * 2;
         this.targetAngle = this.angle;
@@ -99,7 +107,7 @@ export default function TopDownPond() {
         this.swimCycle += 0.08 * (this.baseSpeed * this.currentSpeedMultiplier);
 
         if (Math.random() < 0.015) {
-          this.targetAngle += (Math.random() - 0.5) * 1.2;
+          this.targetAngle += (Math.random() - 0.5) * 0.7;
         }
 
         const dx = mouse.x - this.x;
@@ -113,30 +121,38 @@ export default function TopDownPond() {
           const fleeAngle = Math.atan2(dy, dx) + Math.PI;
           
           this.targetAngle = fleeAngle;
-          targetSpeedMultiplier = 1 + (force * 15);
-          this.swimCycle += 0.3 * force;
+          targetSpeedMultiplier = 1 + (force * 5.5);
+          this.swimCycle += 0.18 * force;
         }
 
-        this.currentSpeedMultiplier += (targetSpeedMultiplier - this.currentSpeedMultiplier) * 0.04;
+        this.currentSpeedMultiplier += (targetSpeedMultiplier - this.currentSpeedMultiplier) * 0.028;
 
         const diff = this.targetAngle - this.angle;
-        this.angle += Math.atan2(Math.sin(diff), Math.cos(diff)) * 0.06;
+        this.angle += Math.atan2(Math.sin(diff), Math.cos(diff)) * 0.04;
 
-        this.speedX = Math.cos(this.angle) * this.baseSpeed * this.currentSpeedMultiplier;
-        this.speedY = Math.sin(this.angle) * this.baseSpeed * this.currentSpeedMultiplier;
+        const targetVx = Math.cos(this.angle) * this.baseSpeed * this.currentSpeedMultiplier;
+        const targetVy = Math.sin(this.angle) * this.baseSpeed * this.currentSpeedMultiplier;
+        this.speedX += (targetVx - this.speedX) * 0.18;
+        this.speedY += (targetVy - this.speedY) * 0.18;
 
         this.x += this.speedX;
         this.y += this.speedY;
+        this.renderX += (this.x - this.renderX) * 0.65;
+        this.renderY += (this.y - this.renderY) * 0.65;
 
         if (this.x < -150) this.x = width + 150;
         if (this.x > width + 150) this.x = -150;
         if (this.y < -150) this.y = height + 150;
         if (this.y > height + 150) this.y = -150;
+        if (this.renderX < -150) this.renderX = width + 150;
+        if (this.renderX > width + 150) this.renderX = -150;
+        if (this.renderY < -150) this.renderY = height + 150;
+        if (this.renderY > height + 150) this.renderY = -150;
       }
 
       draw() {
         ctx.save();
-        ctx.translate(this.x, this.y);
+        ctx.translate(this.renderX, this.renderY);
         ctx.rotate(this.angle);
 
         const sz = this.size;
@@ -176,10 +192,10 @@ export default function TopDownPond() {
         // Vector 3: Carapace
         ctx.beginPath();
         ctx.moveTo(sz * 0.5, 0);
-        ctx.lineTo(sz * 0.3, -sz * 0.2);
-        ctx.lineTo(0, -sz * 0.22);
-        ctx.lineTo(0, sz * 0.22);
-        ctx.lineTo(sz * 0.3, sz * 0.2);
+        ctx.quadraticCurveTo(sz * 0.34, -sz * 0.24, sz * 0.06, -sz * 0.22);
+        ctx.quadraticCurveTo(-sz * 0.05, -sz * 0.18, 0, 0);
+        ctx.quadraticCurveTo(-sz * 0.05, sz * 0.18, sz * 0.06, sz * 0.22);
+        ctx.quadraticCurveTo(sz * 0.34, sz * 0.24, sz * 0.5, 0);
         ctx.closePath();
         
         // Create softer, matte gradient based on pattern type
@@ -355,21 +371,40 @@ export default function TopDownPond() {
         }
 
         // Vector 6: Tail Fan
+        // Tail fan with slightly cleaner shape
         ctx.beginPath();
-        ctx.moveTo(-sz * 0.1, 0);
-        ctx.lineTo(-sz * 0.4, 0);
-        
-        ctx.moveTo(-sz * 0.1, -sz * 0.05);
-        ctx.quadraticCurveTo(-sz * 0.4, -sz * 0.3, -sz * 0.5, -sz * 0.2);
-        ctx.lineTo(-sz * 0.1, 0);
-        
-        ctx.moveTo(-sz * 0.1, sz * 0.05);
-        ctx.quadraticCurveTo(-sz * 0.4, sz * 0.3, -sz * 0.5, sz * 0.2);
-        ctx.lineTo(-sz * 0.1, 0);
-        
+        ctx.moveTo(-sz * 0.12, 0);
+        ctx.quadraticCurveTo(-sz * 0.32, -sz * 0.05, -sz * 0.46, 0);
+        ctx.quadraticCurveTo(-sz * 0.32, sz * 0.05, -sz * 0.12, 0);
+        ctx.closePath();
+        ctx.fillStyle = hexToRgba(light, 0.5);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(-sz * 0.12, -sz * 0.03);
+        ctx.quadraticCurveTo(-sz * 0.24, -sz * 0.27, -sz * 0.5, -sz * 0.19);
+        ctx.quadraticCurveTo(-sz * 0.37, -sz * 0.03, -sz * 0.12, 0);
+        ctx.closePath();
         ctx.fillStyle = main;
         ctx.fill();
-        ctx.strokeStyle = dark;
+
+        ctx.beginPath();
+        ctx.moveTo(-sz * 0.12, sz * 0.03);
+        ctx.quadraticCurveTo(-sz * 0.24, sz * 0.27, -sz * 0.5, sz * 0.19);
+        ctx.quadraticCurveTo(-sz * 0.37, sz * 0.03, -sz * 0.12, 0);
+        ctx.closePath();
+        ctx.fillStyle = main;
+        ctx.fill();
+
+        ctx.strokeStyle = hexToRgba(dark, 0.45);
+        ctx.lineWidth = 0.7;
+        ctx.beginPath();
+        ctx.moveTo(-sz * 0.12, 0);
+        ctx.lineTo(-sz * 0.46, 0);
+        ctx.moveTo(-sz * 0.16, -sz * 0.02);
+        ctx.quadraticCurveTo(-sz * 0.26, -sz * 0.14, -sz * 0.44, -sz * 0.16);
+        ctx.moveTo(-sz * 0.16, sz * 0.02);
+        ctx.quadraticCurveTo(-sz * 0.26, sz * 0.14, -sz * 0.44, sz * 0.16);
         ctx.stroke();
 
         ctx.restore();
