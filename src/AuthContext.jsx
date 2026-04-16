@@ -7,6 +7,36 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState(null);
+  const [profile, setProfile] = useState(null);
+
+  const loadProfile = async (currentUser) => {
+    if (!supabase || !currentUser) return null;
+    const fallbackProfile = {
+      email: currentUser.email,
+      full_name: currentUser.user_metadata?.full_name || currentUser.email?.split('@')[0] || 'User',
+      role: currentUser.user_metadata?.role || 'user'
+    };
+
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, email, full_name, role')
+        .eq('id', currentUser.id)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      const resolvedProfile = data || fallbackProfile;
+      setProfile(resolvedProfile);
+      setUserRole(resolvedProfile.role || 'user');
+      return resolvedProfile;
+    } catch (error) {
+      console.error('Error loading profile:', error);
+      setProfile(fallbackProfile);
+      setUserRole(fallbackProfile.role || 'user');
+      return fallbackProfile;
+    }
+  };
 
   useEffect(() => {
     if (!supabase) {
@@ -20,13 +50,11 @@ export const AuthProvider = ({ children }) => {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
           setUser(session.user);
-          // Get user role from profiles table
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', session.user.id)
-            .single();
-          setUserRole(profile?.role || 'user');
+          await loadProfile(session.user);
+        } else {
+          setUser(null);
+          setProfile(null);
+          setUserRole(null);
         }
       } catch (error) {
         console.error('Error checking session:', error);
@@ -39,26 +67,23 @@ export const AuthProvider = ({ children }) => {
 
     // Listen for auth changes
     try {
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      const { data } = supabase.auth.onAuthStateChange(
         async (event, session) => {
           if (session?.user) {
             setUser(session.user);
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select('role')
-              .eq('id', session.user.id)
-              .single();
-            setUserRole(profile?.role || 'user');
+            await loadProfile(session.user);
           } else {
             setUser(null);
+            setProfile(null);
             setUserRole(null);
           }
+          setLoading(false);
         }
       );
 
       return () => {
-        if (subscription?.unsubscribe) {
-          subscription.unsubscribe();
+        if (data?.subscription?.unsubscribe) {
+          data.subscription.unsubscribe();
         }
       };
     } catch (error) {
@@ -81,15 +106,13 @@ export const AuthProvider = ({ children }) => {
 
       // Create profile entry
       if (data.user) {
-        await supabase.from('profiles').insert([
-          {
-            id: data.user.id,
-            email,
-            full_name: fullName,
-            role: 'user',
-            created_at: new Date()
-          }
-        ]);
+        await supabase.from('profiles').upsert({
+          id: data.user.id,
+          email,
+          full_name: fullName,
+          role: 'user',
+          created_at: new Date().toISOString()
+        });
       }
 
       return data;
@@ -128,9 +151,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   const isAdmin = userRole === 'admin';
+  const displayName = profile?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || '';
 
   return (
-    <AuthContext.Provider value={{ user, loading, userRole, signUp, logIn, logOut, isAdmin }}>
+    <AuthContext.Provider value={{ user, loading, userRole, profile, displayName, signUp, logIn, logOut, isAdmin }}>
       {children}
     </AuthContext.Provider>
   );

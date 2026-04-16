@@ -10,6 +10,7 @@ import Stories from './components/Stories.jsx';
 import Events from './components/Events.jsx';
 import RnD from './components/RnD.jsx';
 import Contact from './components/Contact.jsx';
+import AccountSection from './components/AccountSection.jsx';
 import Footer from './components/Footer.jsx';
 import WaterRipple from './components/WaterRipple.jsx';
 import ChatAgent from './components/ChatAgent.jsx';
@@ -30,6 +31,7 @@ function App() {
           <Stories />
           <Events />
           <RnD />
+          <AccountSection />
           <Contact />
         </main>
 

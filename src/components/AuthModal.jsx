@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Mail, Lock, User, AlertCircle, Loader } from 'lucide-react';
 import { useAuth } from '../AuthContext';
+import { useLanguage } from '../LanguageContext.jsx';
 
 export default function AuthModal({ isOpen, onClose }) {
   const [isLogin, setIsLogin] = useState(true);
@@ -11,6 +12,7 @@ export default function AuthModal({ isOpen, onClose }) {
   const [loading, setLoading] = useState(false);
   
   const { logIn, signUp } = useAuth();
+  const { t } = useLanguage();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,12 +24,12 @@ export default function AuthModal({ isOpen, onClose }) {
         await logIn(email, password);
       } else {
         if (!fullName.trim()) {
-          setError('Full name is required');
+          setError(t('auth.requiredName'));
           setLoading(false);
           return;
         }
         await signUp(email, password, fullName);
-        setError('Check your email for verification link');
+        setError(t('auth.checkEmail'));
         setTimeout(() => {
           onClose();
           setEmail('');
@@ -74,13 +76,13 @@ export default function AuthModal({ isOpen, onClose }) {
           color: 'var(--clr-teal-dark)', fontSize: '1.8rem', fontWeight: 700,
           marginBottom: '0.5rem'
         }}>
-          {isLogin ? 'Welcome Back' : 'Create Account'}
+          {isLogin ? t('auth.welcomeBack') : t('auth.createAccount')}
         </h2>
         
         <p style={{
           color: 'var(--clr-text-muted)', fontSize: '0.9rem', marginBottom: '2rem'
         }}>
-          {isLogin ? 'Sign in to your account' : 'Join us to explore Confier products'}
+          {isLogin ? t('auth.signInToAccount') : t('auth.joinConfier')}
         </p>
 
         {error && (
@@ -104,7 +106,7 @@ export default function AuthModal({ isOpen, onClose }) {
                 display: 'block', fontSize: '0.9rem', fontWeight: 600,
                 color: 'var(--clr-text-main)', marginBottom: '0.5rem'
               }}>
-                Full Name
+                {t('auth.fullName')}
               </label>
               <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                 <User size={18} style={{
@@ -133,7 +135,7 @@ export default function AuthModal({ isOpen, onClose }) {
               display: 'block', fontSize: '0.9rem', fontWeight: 600,
               color: 'var(--clr-text-main)', marginBottom: '0.5rem'
             }}>
-              Email
+              {t('auth.email')}
             </label>
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
               <Mail size={18} style={{
@@ -162,7 +164,7 @@ export default function AuthModal({ isOpen, onClose }) {
               display: 'block', fontSize: '0.9rem', fontWeight: 600,
               color: 'var(--clr-text-main)', marginBottom: '0.5rem'
             }}>
-              Password
+              {t('auth.password')}
             </label>
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
               <Lock size={18} style={{
@@ -200,7 +202,7 @@ export default function AuthModal({ isOpen, onClose }) {
             }}
           >
             {loading && <Loader size={18} style={{ animation: 'spin 1s linear infinite' }} />}
-            {isLogin ? 'Sign In' : 'Create Account'}
+            {isLogin ? t('auth.signIn') : t('auth.create')}
           </button>
         </form>
 
@@ -208,7 +210,7 @@ export default function AuthModal({ isOpen, onClose }) {
           textAlign: 'center', marginTop: '1.5rem', fontSize: '0.9rem',
           color: 'var(--clr-text-muted)'
         }}>
-          {isLogin ? "Don't have an account?" : 'Already have an account?'}
+          {isLogin ? t('auth.noAccount') : t('auth.haveAccount')}
           <button
             onClick={() => {
               setIsLogin(!isLogin);
@@ -222,7 +224,7 @@ export default function AuthModal({ isOpen, onClose }) {
               cursor: 'pointer', fontWeight: 700, marginLeft: '0.5rem'
             }}
           >
-            {isLogin ? 'Sign Up' : 'Sign In'}
+            {isLogin ? t('auth.signUp') : t('auth.signIn')}
           </button>
         </div>
 

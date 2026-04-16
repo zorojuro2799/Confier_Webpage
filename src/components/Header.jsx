@@ -13,7 +13,7 @@ export default function Header() {
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const { t } = useLanguage();
-  const { user, logOut } = useAuth();
+  const { user, logOut, displayName, isAdmin } = useAuth();
   const { cartItems } = useCart();
 
   useEffect(() => {
@@ -86,7 +86,7 @@ export default function Header() {
                     display: 'flex', alignItems: 'center', gap: '0.5rem'
                   }}
                 >
-                  <User size={18} /> {user.email?.split('@')[0]}
+                  <User size={18} /> {displayName}
                 </button>
                 {userMenuOpen && (
                   <div style={{
@@ -100,15 +100,15 @@ export default function Header() {
                       textDecoration: 'none', fontSize: '0.9rem', borderBottom: '1px solid var(--clr-border)',
                       transition: 'background 0.2s'
                     }} onMouseOver={(e) => e.target.style.background = 'var(--clr-bg-surface)'} onMouseOut={(e) => e.target.style.background = ''}>
-                      My Account
+                      {t('account.title')}
                     </a>
-                    {user.user_metadata?.role === 'admin' && (
+                    {isAdmin && (
                       <a href="#admin" onClick={() => setUserMenuOpen(false)} style={{
                         display: 'block', padding: '0.75rem 1rem', color: 'var(--clr-text-main)',
                         textDecoration: 'none', fontSize: '0.9rem', borderBottom: '1px solid var(--clr-border)',
                         transition: 'background 0.2s'
                       }} onMouseOver={(e) => e.target.style.background = 'var(--clr-bg-surface)'} onMouseOut={(e) => e.target.style.background = ''}>
-                        Admin Panel
+                        {t('account.roleAdmin')}
                       </a>
                     )}
                     <button
@@ -125,7 +125,7 @@ export default function Header() {
                       onMouseOver={(e) => e.target.style.background = 'var(--clr-bg-surface)'}
                       onMouseOut={(e) => e.target.style.background = ''}
                     >
-                      <LogOut size={18} /> Logout
+                      <LogOut size={18} /> {t('auth.logout')}
                     </button>
                   </div>
                 )}
@@ -141,7 +141,7 @@ export default function Header() {
                 onMouseOver={(e) => e.target.style.background = 'var(--clr-orange)'}
                 onMouseOut={(e) => e.target.style.background = 'var(--clr-orange-warm)'}
               >
-                Login / Register
+                {t('auth.loginRegister')}
               </button>
             )}
           </div>
@@ -203,13 +203,13 @@ export default function Header() {
             <>
               <div style={{ paddingTop: '1rem', borderTop: '1px solid var(--clr-border)' }}>
                 <div style={{ fontSize: '0.9rem', color: 'var(--clr-text-muted)', marginBottom: '0.5rem' }}>
-                  Signed in as: <strong>{user.email?.split('@')[0]}</strong>
+                  {t('auth.signedInAs')}: <strong>{displayName}</strong>
                 </div>
                 <a href="#account" onClick={() => setMobileOpen(false)} style={{
                   display: 'block', padding: '0.5rem 0', color: 'var(--clr-teal-dark)',
                   textDecoration: 'none', fontWeight: 600, marginBottom: '0.5rem'
                 }}>
-                  My Account
+                  {t('account.title')}
                 </a>
                 <button
                   onClick={async () => {
@@ -221,7 +221,7 @@ export default function Header() {
                     border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 600
                   }}
                 >
-                  Logout
+                  {t('auth.logout')}
                 </button>
               </div>
             </>
@@ -237,7 +237,7 @@ export default function Header() {
                 fontWeight: 600, marginTop: '0.5rem'
               }}
             >
-              Login / Register
+              {t('auth.loginRegister')}
             </button>
           )}
         </div>
@@ -254,7 +254,6 @@ export default function Header() {
       `}</style>
       </nav>
 
-      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
       <Checkout isOpen={checkoutOpen} onClose={() => setCheckoutOpen(false)} />
     </>
   );

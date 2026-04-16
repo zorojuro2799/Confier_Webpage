@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useMemo, useState } from 'react';
 
 const LanguageContext = createContext();
 
@@ -54,12 +54,55 @@ const enDict = {
   'contact.hq': 'Head Office',
   'contact.call': 'Call Us',
   'contact.email': 'Email Support',
+  'contact.phone': 'Phone Number',
   'contact.send': 'Send a Message',
   'contact.name': 'Your Full Name',
   'contact.email_placeholder': 'Your Email Address',
   'contact.help': 'How can we help?',
   'contact.submit': 'Submit Request',
   'contact.btn': 'SUBMIT INQUIRY',
+
+  'auth.loginRegister': 'Login / Register',
+  'auth.welcomeBack': 'Welcome Back',
+  'auth.createAccount': 'Create Account',
+  'auth.signInToAccount': 'Sign in to your account',
+  'auth.joinConfier': 'Join us to explore Confier products',
+  'auth.fullName': 'Full Name',
+  'auth.email': 'Email',
+  'auth.password': 'Password',
+  'auth.signIn': 'Sign In',
+  'auth.signUp': 'Sign Up',
+  'auth.create': 'Create Account',
+  'auth.noAccount': "Don't have an account?",
+  'auth.haveAccount': 'Already have an account?',
+  'auth.checkEmail': 'Check your email for verification link',
+  'auth.requiredName': 'Full name is required',
+  'auth.logout': 'Logout',
+  'auth.signedInAs': 'Signed in as',
+  'account.title': 'My Account',
+  'account.subtitle': 'Track your wishlist, cart, and account details.',
+  'account.welcome': 'Hi',
+  'account.loggedIn': 'You are logged in',
+  'account.guest': 'Please sign in to access your account and wishlist.',
+  'account.wishlist': 'Wishlist Items',
+  'account.cart': 'Cart Items',
+  'account.emailLabel': 'Email',
+  'account.roleLabel': 'Account Type',
+  'account.quickActions': 'Quick Actions',
+  'account.openCart': 'Open Cart',
+  'account.viewProducts': 'View Products',
+  'account.loginPrompt': 'Login to continue',
+  'account.roleUser': 'User',
+  'account.roleAdmin': 'Admin',
+
+  'chat.title': 'Shrumpi AI',
+  'chat.online': 'Online',
+  'chat.thinking': 'Shrumpi is thinking...',
+  'chat.listening': 'Listening...',
+  'chat.input': 'Ask about pond issues, shrimp health, or product usage...',
+  'chat.openProduct': 'Open Product',
+  'chat.greeting': "Hello! I'm Shrumpi, your Confier product assistant. Tell me your pond, shrimp, feed, or water-quality issue and I will suggest only Confier products from this website.",
+  'chat.error': 'Sorry, please try again.',
   
   'footer.company': 'Company',
   'footer.contact': 'Contact',
@@ -73,134 +116,150 @@ const enDict = {
   'events.desc': 'Latest field updates and technical bulletins.'
 };
 
-async function translateTextArray(texts, targetLang) {
-  try {
-    const text = texts.join('\n||\n');
-    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLang}&dt=t`;
-    const body = new URLSearchParams({ q: text });
-    
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: body.toString()
-    });
-    
-    if (!res.ok) throw new Error("Translation API returned " + res.status);
-    
-    const data = await res.json();
-    const translated = data[0].map(item => item[0]).join('');
-    const translatedArray = translated.split(/\n\s*\|\|\s*\n/).map(s => s.trim());
-    
-    // Fallback if mismatch
-    if (translatedArray.length !== texts.length) {
-       console.warn(`Translation mismatch length. Expected ${texts.length} but got ${translatedArray.length}. Falling back.`);
-       return texts;
-    }
-    return translatedArray;
-  } catch (error) {
-    console.error("Translation error:", error);
-    return texts;
-  }
-}
+const teDict = {
+  'nav.products': 'మా ఉత్పత్తులు',
+  'nav.about': 'మా కథ',
+  'nav.results': 'విజయ కథలు',
+  'nav.rnd': 'ఆవిష్కరణ ప్రయోగశాల',
+  'nav.updates': 'తాజా అప్‌డేట్స్',
+  'nav.contact': 'మమ్మల్ని సంప్రదించండి',
+  'nav.lang': 'భాష',
+  'hero.badge': 'కలిసి ఎదుగుదాం',
+  'hero.title1': 'కలిసి ఎదుగుదాం,',
+  'hero.title2': 'కలిసి అభివృద్ధి చెందుదాం.',
+  'hero.subtitle': 'భవిష్యత్తుకు ఆహారం అందించే రైతులకు ధన్యవాదాలు',
+  'hero.btn1': 'మా ఉత్పత్తులను చూడండి',
+  'about.tag': 'మా కథ',
+  'prod.tag': 'మా ఉత్పత్తులు',
+  'prod.title': 'ప్రీమియం ఫీడ్ సప్లిమెంట్స్',
+  'prod.desc': 'వృద్ధి, జీవన శాతం, మరియు చెరువు ఆరోగ్యాన్ని మెరుగుపరచే శాస్త్రీయ ఫార్ములేషన్స్.',
+  'rnd.tag': 'ఆవిష్కరణ ప్రయోగశాల',
+  'contact.title': 'కాన్‌ఫియర్ ఇంటర్నేషనల్‌ను సంప్రదించండి',
+  'contact.desc': 'మా ఉత్పత్తులు, బల్క్ ధరలు లేదా టెక్నికల్ సహాయం గురించి మమ్మల్ని సంప్రదించండి.',
+  'contact.call': 'మాకు కాల్ చేయండి',
+  'contact.phone': 'ఫోన్ నంబర్',
+  'contact.name': 'మీ పూర్తి పేరు',
+  'contact.help': 'మేము ఎలా సహాయం చేయగలం?',
+  'contact.btn': 'విచారణ పంపండి',
+  'auth.loginRegister': 'లాగిన్ / నమోదు',
+  'auth.welcomeBack': 'మళ్లీ స్వాగతం',
+  'auth.createAccount': 'ఖాతా సృష్టించండి',
+  'auth.signInToAccount': 'మీ ఖాతాలోకి లాగిన్ అవ్వండి',
+  'auth.joinConfier': 'కాన్‌ఫియర్ ఉత్పత్తులను చూడటానికి చేరండి',
+  'auth.fullName': 'పూర్తి పేరు',
+  'auth.email': 'ఈమెయిల్',
+  'auth.password': 'పాస్‌వర్డ్',
+  'auth.signIn': 'లాగిన్ అవ్వండి',
+  'auth.signUp': 'సైన్ అప్',
+  'auth.create': 'ఖాతా సృష్టించండి',
+  'auth.noAccount': 'ఖాతా లేదా?',
+  'auth.haveAccount': 'ఇప్పటికే ఖాతా ఉందా?',
+  'auth.checkEmail': 'వెరిఫికేషన్ లింక్ కోసం మీ ఈమెయిల్ చూడండి',
+  'auth.requiredName': 'పూర్తి పేరు అవసరం',
+  'auth.logout': 'లాగౌట్',
+  'auth.signedInAs': 'లాగిన్ అయిన వినియోగదారు',
+  'account.title': 'నా ఖాతా',
+  'account.subtitle': 'మీ విష్‌లిస్టు, కార్ట్ మరియు ఖాతా వివరాలను చూడండి.',
+  'account.welcome': 'హాయ్',
+  'account.loggedIn': 'మీరు లాగిన్ అయ్యారు',
+  'account.guest': 'మీ ఖాతా మరియు విష్‌లిస్టు కోసం దయచేసి లాగిన్ అవ్వండి.',
+  'account.wishlist': 'విష్‌లిస్టు అంశాలు',
+  'account.cart': 'కార్ట్ అంశాలు',
+  'account.emailLabel': 'ఈమెయిల్',
+  'account.roleLabel': 'ఖాతా రకం',
+  'account.quickActions': 'త్వరిత చర్యలు',
+  'account.openCart': 'కార్ట్ తెరవండి',
+  'account.viewProducts': 'ఉత్పత్తులు చూడండి',
+  'account.loginPrompt': 'కొనసాగడానికి లాగిన్ అవ్వండి',
+  'account.roleUser': 'వినియోగదారు',
+  'account.roleAdmin': 'అడ్మిన్',
+  'chat.title': 'శ్రుంపి AI',
+  'chat.online': 'ఆన్‌లైన్',
+  'chat.thinking': 'శ్రుంపి ఆలోచిస్తోంది...',
+  'chat.listening': 'వింటోంది...',
+  'chat.input': 'చెరువు, శ్రిమ్ప్ ఆరోగ్యం, లేదా ఉత్పత్తి వినియోగం గురించి అడగండి...',
+  'chat.openProduct': 'ఉత్పత్తి తెరవండి',
+  'chat.greeting': 'నమస్కారం! నేను శ్రుంపి. మీ చెరువు, శ్రిమ్ప్, ఫీడ్ లేదా నీటి సమస్య చెప్పండి. ఈ వెబ్‌సైట్‌లో ఉన్న కాన్‌ఫియర్ ఉత్పత్తులనే నేను సూచిస్తాను.',
+  'chat.error': 'క్షమించండి, దయచేసి మళ్లీ ప్రయత్నించండి.'
+};
+
+const hiDict = {
+  'nav.products': 'हमारे उत्पाद',
+  'nav.about': 'हमारी कहानी',
+  'nav.results': 'सफलता की कहानियाँ',
+  'nav.rnd': 'इनोवेशन लैब',
+  'nav.updates': 'नवीनतम अपडेट',
+  'nav.contact': 'संपर्क करें',
+  'nav.lang': 'भाषा',
+  'hero.badge': 'साथ मिलकर बढ़ते हैं',
+  'hero.title1': 'साथ मिलकर बढ़ें,',
+  'hero.title2': 'साथ मिलकर आगे बढ़ें।',
+  'hero.subtitle': 'भविष्य को पोषण देने वाले किसानों को धन्यवाद',
+  'hero.btn1': 'हमारे उत्पाद देखें',
+  'about.tag': 'हमारी कहानी',
+  'prod.tag': 'हमारे उत्पाद',
+  'prod.title': 'प्रीमियम फीड सप्लीमेंट्स',
+  'prod.desc': 'विकास, सर्वाइवल और तालाब स्वास्थ्य सुधारने के लिए वैज्ञानिक फॉर्मूलेशन।',
+  'rnd.tag': 'इनोवेशन लैब',
+  'contact.title': 'कॉनफियर इंटरनेशनल से संपर्क करें',
+  'contact.desc': 'हमारे उत्पादों, थोक मूल्य या तकनीकी सहायता के बारे में हमसे संपर्क करें।',
+  'contact.call': 'हमें कॉल करें',
+  'contact.phone': 'फोन नंबर',
+  'contact.name': 'आपका पूरा नाम',
+  'contact.help': 'हम आपकी कैसे मदद कर सकते हैं?',
+  'contact.btn': 'पूछताछ भेजें',
+  'auth.loginRegister': 'लॉगिन / रजिस्टर',
+  'auth.welcomeBack': 'फिर से स्वागत है',
+  'auth.createAccount': 'खाता बनाएँ',
+  'auth.signInToAccount': 'अपने खाते में साइन इन करें',
+  'auth.joinConfier': 'कॉनफियर उत्पाद देखने के लिए जुड़ें',
+  'auth.fullName': 'पूरा नाम',
+  'auth.email': 'ईमेल',
+  'auth.password': 'पासवर्ड',
+  'auth.signIn': 'साइन इन',
+  'auth.signUp': 'साइन अप',
+  'auth.create': 'खाता बनाएँ',
+  'auth.noAccount': 'क्या आपका खाता नहीं है?',
+  'auth.haveAccount': 'क्या आपके पास पहले से खाता है?',
+  'auth.checkEmail': 'वेरिफिकेशन लिंक के लिए अपना ईमेल देखें',
+  'auth.requiredName': 'पूरा नाम आवश्यक है',
+  'auth.logout': 'लॉगआउट',
+  'auth.signedInAs': 'साइन इन उपयोगकर्ता',
+  'account.title': 'मेरा खाता',
+  'account.subtitle': 'अपनी विशलिस्ट, कार्ट और खाते का विवरण देखें।',
+  'account.welcome': 'नमस्ते',
+  'account.loggedIn': 'आप लॉगिन हैं',
+  'account.guest': 'अपना खाता और विशलिस्ट देखने के लिए कृपया लॉगिन करें।',
+  'account.wishlist': 'विशलिस्ट आइटम',
+  'account.cart': 'कार्ट आइटम',
+  'account.emailLabel': 'ईमेल',
+  'account.roleLabel': 'खाता प्रकार',
+  'account.quickActions': 'त्वरित कार्य',
+  'account.openCart': 'कार्ट खोलें',
+  'account.viewProducts': 'उत्पाद देखें',
+  'account.loginPrompt': 'जारी रखने के लिए लॉगिन करें',
+  'account.roleUser': 'उपयोगकर्ता',
+  'account.roleAdmin': 'एडमिन',
+  'chat.title': 'श्रुंपी AI',
+  'chat.online': 'ऑनलाइन',
+  'chat.thinking': 'श्रुंपी सोच रही है...',
+  'chat.listening': 'सुन रही है...',
+  'chat.input': 'तालाब, झींगा स्वास्थ्य या उत्पाद उपयोग के बारे में पूछें...',
+  'chat.openProduct': 'उत्पाद खोलें',
+  'chat.greeting': 'नमस्ते! मैं श्रुंपी हूँ। अपने तालाब, झींगा, फीड या पानी की समस्या बताइए। मैं केवल इसी वेबसाइट के कॉनफियर उत्पाद सुझाऊँगी।',
+  'chat.error': 'माफ़ कीजिए, कृपया फिर से प्रयास करें।'
+};
+
+const dictionaries = {
+  en: enDict,
+  te: { ...enDict, ...teDict },
+  hi: { ...enDict, ...hiDict }
+};
 
 export function LanguageProvider({ children }) {
   const [lang, setLang] = useState('en');
-  const [translations, setTranslations] = useState({ en: enDict });
-  const translating = useRef(new Set());
-  
-  // Dynamic queue state to trigger effect
-  const [dynamicQueue, setDynamicQueue] = useState([]);
-  const seenDynamicTexts = useRef(new Set());
-
-  // Initial Dictionary Translation
-  useEffect(() => {
-    if (lang === 'en' || translations[lang] || translating.current.has(lang)) return;
-
-    translating.current.add(lang);
-    let isMounted = true;
-
-    const translateAll = async () => {
-      const keys = Object.keys(enDict);
-      const values = Object.values(enDict);
-      
-      const translatedValues = await translateTextArray(values, lang);
-      
-      if (isMounted) {
-        const newLangDict = {};
-        keys.forEach((key, i) => {
-          newLangDict[key] = translatedValues[i] || values[i];
-        });
-        
-        setTranslations(prev => ({
-          ...prev,
-          [lang]: newLangDict
-        }));
-      }
-    };
-
-    translateAll();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [lang]);
-
-  // Dynamic Text Translation Effect
-  useEffect(() => {
-    if (lang === 'en' || dynamicQueue.length === 0) return;
-    
-    let isMounted = true;
-    const currentQueue = [...dynamicQueue];
-    setDynamicQueue([]); // Clear queue immediately so we don't re-process
-
-    const translateDynamic = async () => {
-      const translatedValues = await translateTextArray(currentQueue, lang);
-      
-      if (isMounted) {
-        setTranslations(prev => {
-          const currentLangDict = prev[lang] || {};
-          const newUpdates = {};
-          currentQueue.forEach((key, i) => {
-            newUpdates[key] = translatedValues[i] || key;
-          });
-          return {
-            ...prev,
-            [lang]: { ...currentLangDict, ...newUpdates }
-          };
-        });
-      }
-    };
-
-    translateDynamic();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [dynamicQueue, lang]);
-
-  const t = (key) => {
-    // If we have the translation cached, return it
-    if (translations[lang] && translations[lang][key]) {
-      return translations[lang][key];
-    }
-    
-    // If it's a base dict key and we're on EN or it hasn't translated yet
-    if (enDict[key]) {
-       return enDict[key];
-    }
-
-    // Dynamic Text - Add to queue if not seen
-    if (lang !== 'en' && !seenDynamicTexts.current.has(key)) {
-      seenDynamicTexts.current.add(key);
-      // Small timeout to batch rapid dynamic t() calls
-      setTimeout(() => {
-        setDynamicQueue(prev => [...new Set([...prev, key])]);
-      }, 50);
-    }
-    
-    // Return original text as fallback/placeholder
-    return key;
-  };
+  const dict = useMemo(() => dictionaries[lang] || enDict, [lang]);
+  const t = (key) => dict[key] || enDict[key] || key;
 
   return (
     <LanguageContext.Provider value={{ lang, setLang, t }}>

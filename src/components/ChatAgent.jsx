@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Send, Mic, MicOff, Loader } from 'lucide-react';
-import { products } from './Products.jsx';
 import { useLanguage } from '../LanguageContext.jsx';
-import { translateWithContext } from '../translationService.js';
 import { getAIResponse } from '../aiService.js';
 
 export default function ChatAgent() {
-  const { lang } = useLanguage();
+  const { lang, t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -16,18 +14,12 @@ export default function ChatAgent() {
 
   // Initialize with greeting in selected language
   useEffect(() => {
-    const greetings = {
-      'te': "నమస్కారం! 🦐 నేను శ్రుంపీని, మీ AI ఆక్వాకల్చర్ నిపుణుడిని!\n\nనేను Confier ఉత్పత్తుల గురించి మీకు సహాయం చేయగలను. మీ చెరువుకు కూడా సమस్య ఉందా?",
-      'hi': "नमस्ते! 🦐 मैं श्रुंपी हूँ, आपका AI जलकृषि विशेषज्ञ!\n\nमैं Confier उत्पादों के बारे में मदद कर सकता हूँ। आपके तालाब में क्या समस्या है?",
-      'en': "Hello! 🦐 I'm Shrumpi, your AI aquaculture expert!\n\nI specialize in Confier products and can help with your shrimp farming challenges. What's the issue in your pond today?"
-    };
-    
     setMessages([{ 
       role: 'agent', 
-      text: greetings[lang] || greetings['en'], 
+      text: t('chat.greeting'), 
       products: [] 
     }]);
-  }, [lang]);
+  }, [lang, t]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -75,32 +67,18 @@ export default function ChatAgent() {
     setIsTyping(true);
 
     try {
-      // Get AI response using the new service
       const aiResponse = await getAIResponse(userText, lang);
-      
-      // Translate AI response to user's language if needed
-      const translatedText = lang !== 'en' ? translateWithContext(aiResponse.text, lang) : aiResponse.text;
-      
-      // Get product objects
-      const recommendedProducts = aiResponse.products || [];
-      
-      // Add agent message with products
       setMessages(prev => [...prev, { 
         role: 'agent', 
-        text: translatedText, 
-        products: recommendedProducts 
+        text: aiResponse.text, 
+        products: aiResponse.products || [] 
       }]);
     } catch (error) {
       console.error('Chat error:', error);
-      const errorMsg = lang === 'te' 
-        ? "క్షమించండి, దయచేసి మళ్లీ ప్రయత్నించండి." 
-        : lang === 'hi' 
-        ? "माफ़ करें, कृपया फिर से कोशिश करें।" 
-        : "Sorry, please try again.";
       
       setMessages(prev => [...prev, { 
         role: 'agent', 
-        text: errorMsg, 
+        text: t('chat.error'), 
         products: [] 
       }]);
     } finally {
@@ -194,10 +172,10 @@ export default function ChatAgent() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{ fontSize: '1.6rem' }}>🦐</div>
               <div>
-                <div style={{ fontWeight: 800, fontSize: '1rem' }}>Shrumpi AI</div>
+                <div style={{ fontWeight: 800, fontSize: '1rem' }}>{t('chat.title')}</div>
                 <div style={{ fontSize: '0.75rem', opacity: 0.9, display: 'flex', alignItems: 'center', gap: '4px' }}>
                   <div style={{ width: '6px', height: '6px', background: '#4ade80', borderRadius: '50%' }} />
-                  Online
+                  {t('chat.online')}
                 </div>
               </div>
             </div>
@@ -286,8 +264,8 @@ export default function ChatAgent() {
                             {p.subtitle}
                           </div>
                         </div>
-                        <span style={{ fontSize: '0.8rem', color: 'var(--clr-orange)', fontWeight: 700 }}>
-                          →
+                        <span style={{ fontSize: '0.72rem', color: 'var(--clr-orange)', fontWeight: 700 }}>
+                          {t('chat.openProduct')}
                         </span>
                       </div>
                     ))}
@@ -299,13 +277,13 @@ export default function ChatAgent() {
             {isTyping && (
               <div style={{ alignSelf: 'flex-start', background: 'var(--clr-bg-surface)', padding: '12px 16px', borderRadius: '18px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Loader size={16} style={{ animation: 'spin 1s linear infinite', color: 'var(--clr-teal)' }} />
-                <span style={{ fontSize: '0.9rem', color: 'var(--clr-text-muted)' }}>Shrumpi is thinking...</span>
+                <span style={{ fontSize: '0.9rem', color: 'var(--clr-text-muted)' }}>{t('chat.thinking')}</span>
               </div>
             )}
 
             {isListening && (
               <div style={{ alignSelf: 'flex-end', background: 'var(--clr-orange)', padding: '8px 16px', borderRadius: '18px', color: '#fff', fontSize: '0.9rem', boxShadow: 'var(--shadow-sm)', animation: 'pulseMic 1.5s infinite' }}>
-                🎤 Listening...
+                🎤 {t('chat.listening')}
               </div>
             )}
 
@@ -346,7 +324,7 @@ export default function ChatAgent() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSend(e)}
-              placeholder={lang === 'te' ? "మీ సమస్య చెప్పండి..." : lang === 'hi' ? "अपनी समस्या बताएं..." : "Tell me your problem..."}
+              placeholder={t('chat.input')}
               style={{
                 flex: 1,
                 border: '1px solid var(--clr-border)',
