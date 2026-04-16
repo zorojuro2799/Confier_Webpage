@@ -17,6 +17,17 @@ export default function TopDownPond() {
     const scaleFactor = isMobile ? 0.6 : 1;
     const mouse = { x: -1000, y: -1000, radius: isMobile ? 150 : 300 };
 
+    // Helpers for softer blending (avoid harsh “metallic/tiger” contrast)
+    const hexToRgba = (hex, alpha) => {
+      const cleaned = String(hex).replace('#', '');
+      const full = cleaned.length === 3 ? cleaned.split('').map((c) => c + c).join('') : cleaned;
+      const num = parseInt(full, 16);
+      const r = (num >> 16) & 255;
+      const g = (num >> 8) & 255;
+      const b = num & 255;
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    };
+
     const handleMouseMove = (e) => {
       const rect = canvas.getBoundingClientRect();
       mouse.x = e.clientX - rect.left;
@@ -231,30 +242,79 @@ export default function TopDownPond() {
           ctx.translate(-sz * 0.15, 0);
           ctx.rotate(tailBeat * 0.2);
           
-          // Draw segment with matte pattern-specific coloring
-          let segGrad = ctx.createLinearGradient(0, -segHeight, 0, segHeight);
-          if (this.patternType % 3 === 0) {
-            // Alternating stripes - matte
-            if (i % 2 === 0) {
-              segGrad.addColorStop(0, dark);
-              segGrad.addColorStop(0.5, dark);
-              segGrad.addColorStop(1, dark);
-            } else {
-              segGrad.addColorStop(0, main);
-              segGrad.addColorStop(0.5, main);
-              segGrad.addColorStop(1, main);
+          // Draw segment: base + soft blended bands (NOT hard zebra/tiger flips)
+          ctx.save();
+          ctx.beginPath();
+          ctx.ellipse(0, 0, segWidth, segHeight, 0, 0, Math.PI * 2);
+          ctx.clip();
+
+          // Base body fill
+          ctx.fillStyle = main;
+          ctx.fillRect(-segWidth, -segHeight, segWidth * 2, segHeight * 2);
+
+          const patternMode = this.patternType % 4;
+
+          if (patternMode === 0) {
+            // Subtle softened bands
+            const bandCount = 2 + ((this.patternType + i) % 3); // 2..4
+            ctx.filter = 'blur(0.7px)';
+            for (let b = 0; b < bandCount; b++) {
+              const t = (b + 1) / (bandCount + 1);
+              const y = (-segHeight * 0.78) + t * (segHeight * 1.56);
+              const bandH = segHeight * (0.12 + 0.03 * ((b + i) % 2));
+              const a = 0.12 + 0.03 * ((b + this.patternType) % 2);
+              ctx.fillStyle = hexToRgba(dark, a);
+              ctx.fillRect(-segWidth * 1.05, y, segWidth * 2.1, bandH);
+            }
+            ctx.filter = 'none';
+          } else if (patternMode === 1) {
+            // Mottled (blotchy) variation, still subtle
+            const blobCount = 5 + (this.patternType % 3);
+            for (let b = 0; b < blobCount; b++) {
+              const sx = (Math.sin((this.patternType + 1) * (b + 2)) * 0.5 + 0.5) * segWidth * 1.4 - segWidth * 0.7;
+              const sy = (Math.cos((this.patternType + 3) * (b + 2)) * 0.5 + 0.5) * segHeight * 1.1 - segHeight * 0.55;
+              const rr = segHeight * (0.05 + ((b + i) % 3) * 0.01);
+              const a = 0.09 + 0.04 * ((b + i) % 2);
+              ctx.fillStyle = hexToRgba(dark, a);
+              ctx.beginPath();
+              ctx.arc(sx, sy, rr, 0, Math.PI * 2);
+              ctx.fill();
             }
           } else {
-            segGrad.addColorStop(0, dark);
-            segGrad.addColorStop(0.5, main);
-            segGrad.addColorStop(1, dark);
+            // Mixed gentle banding: only 1-2 faint bands
+            const bandCount = 1 + (i % 2);
+            ctx.filter = 'blur(0.8px)';
+            for (let b = 0; b < bandCount; b++) {
+              const t = 0.35 + 0.3 * b + 0.08 * Math.sin((this.patternType + i) * 1.7);
+              const y = (-segHeight * 0.78) + t * (segHeight * 1.56);
+              const bandH = segHeight * 0.12;
+              ctx.fillStyle = hexToRgba(dark, 0.11);
+              ctx.fillRect(-segWidth * 1.05, y, segWidth * 2.1, bandH);
+            }
+            ctx.filter = 'none';
           }
-          
-          ctx.ellipse(0, 0, segWidth, segHeight, 0, 0, Math.PI * 2);
-          ctx.fillStyle = segGrad;
+
+          // Texture speckles (soft, not bright/metallic)
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
+          const spotR = sz * 0.014;
+          ctx.beginPath();
+          ctx.arc(0, segHeight * 0.08, spotR, 0, Math.PI * 2);
           ctx.fill();
-          ctx.strokeStyle = dark;
-          ctx.lineWidth = 0.8;
+
+          if (i % 2 === 0) {
+            ctx.beginPath();
+            ctx.arc(sz * 0.035, -segHeight * 0.08, spotR * 0.85, 0, Math.PI * 2);
+            ctx.arc(-sz * 0.03, segHeight * 0.18, spotR * 0.7, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          ctx.restore();
+
+          // Extremely subtle outline (reduces “robot/tiger armor” look)
+          ctx.beginPath();
+          ctx.ellipse(0, 0, segWidth, segHeight, 0, 0, Math.PI * 2);
+          ctx.strokeStyle = hexToRgba(dark, 0.22);
+          ctx.lineWidth = 0.55;
           ctx.stroke();
 
           // Swimmerets
@@ -319,40 +379,56 @@ export default function TopDownPond() {
       });
     }
 
+    // Grain/noise overlay for a more realistic water surface
+    const grainCount = Math.min(900, Math.max(260, Math.floor((width * height) / 1400)));
+    const grain = [];
+    for (let i = 0; i < grainCount; i++) {
+      grain.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        r: Math.random() * 0.9 + 0.25,
+        a: Math.random() * 0.05 + 0.02
+      });
+    }
+
     let rafId;
     let time = 0;
     const animate = () => {
       time += 1;
       ctx.clearRect(0, 0, width, height);
 
-      // Unified pond water color with subtle depth
+      // Unified pond water color (lighter bluish, no “separated” layers)
       const waterGrad = ctx.createLinearGradient(0, 0, 0, height);
-      waterGrad.addColorStop(0, '#1a6d7e');      // Water surface
-      waterGrad.addColorStop(0.6, '#156a78');    // Mid-water  
-      waterGrad.addColorStop(1, '#0d4a56');      // Deeper water
+      waterGrad.addColorStop(0, '#49bcd0');      // Surface
+      waterGrad.addColorStop(0.55, '#248da6');   // Mid-water
+      waterGrad.addColorStop(1, '#114f66');      // Deeper water
       ctx.fillStyle = waterGrad;
       ctx.fillRect(0, 0, width, height);
 
-      // Subtle sand texture at bottom (reduced opacity for unity)
-      ctx.fillStyle = 'rgba(180, 160, 130, 0.12)';
-      ctx.fillRect(0, height * 0.82, width, height * 0.18);
+      // Gentle bottom haze (keeps water realistic without “blocks”)
+      ctx.fillStyle = 'rgba(9, 52, 66, 0.16)';
+      ctx.fillRect(0, height * 0.78, width, height * 0.22);
 
-      // Subtle animated ripple effect for realism
-      ctx.strokeStyle = `rgba(100, 160, 180, ${0.06 + Math.sin(time * 0.008) * 0.03})`;
-      ctx.lineWidth = 0.8;
-      for (let wave = 0; wave < 2; wave++) {
-        ctx.beginPath();
-        for (let x = 0; x < width + 50; x += 40) {
-          const y = height * 0.35 + Math.sin((x + time * 0.5) * 0.008 + wave * 1.5) * 6;
-          if (x === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        }
-        ctx.stroke();
+      // Grain overlay
+      for (let i = 0; i < grain.length; i++) {
+        const g = grain[i];
+        const wobble = Math.sin(time * 0.01 + g.x * 0.01) * 0.25;
+        ctx.globalAlpha = g.a;
+        ctx.fillStyle = 'rgba(255, 255, 255, 1)';
+        ctx.fillRect(g.x, g.y + wobble, g.r, g.r);
       }
+      ctx.globalAlpha = 1;
 
-      // Subtle depth overlay (smooth transition, not separated)
-      ctx.fillStyle = `rgba(5, 25, 40, ${0.04 + Math.sin(time * 0.01) * 0.015})`;
-      ctx.fillRect(0, height * 0.75, width, height * 0.25);
+      // Very subtle ripple strokes (reduced to avoid “broken” look)
+      ctx.strokeStyle = `rgba(140, 220, 230, ${0.02 + Math.sin(time * 0.008) * 0.01})`;
+      ctx.lineWidth = 0.45;
+      ctx.beginPath();
+      for (let x = 0; x < width + 40; x += 55) {
+        const y = height * 0.38 + Math.sin((x + time * 0.6) * 0.009) * 3.5;
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
 
       // Floating particles (algae/debris)
       particles.forEach(p => {
@@ -361,7 +437,7 @@ export default function TopDownPond() {
         
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(140, 165, 155, ${p.opacity})`;
+        ctx.fillStyle = `rgba(150, 210, 210, ${p.opacity * 0.65})`;
         ctx.fill();
       });
 
