@@ -57,7 +57,7 @@ export default function Contact() {
             <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', marginBottom: '1.5rem', color: 'var(--clr-text-main)' }}>
               {t('contact.send')}
             </h3>
-            <form style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }} onSubmit={(e) => { e.preventDefault(); alert("Thanks for reaching out! We will contact you soon."); }}>
+            <form style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }} onSubmit={(e) => { e.preventDefault(); alert(t('contact.alertThanks')); }}>
               <input type="text" placeholder={t('contact.name')} required style={{ width: '100%', padding: '0.95rem 1rem', borderRadius: '14px', border: '1px solid var(--clr-border)', outline: 'none', background: '#fff' }} />
               <input type="email" placeholder={t('contact.email_placeholder')} required style={{ width: '100%', padding: '0.95rem 1rem', borderRadius: '14px', border: '1px solid var(--clr-border)', outline: 'none', background: '#fff' }} />
               <textarea placeholder={t('contact.help')} rows="4" required style={{ width: '100%', padding: '0.95rem 1rem', borderRadius: '14px', border: '1px solid var(--clr-border)', outline: 'none', background: '#fff', resize: 'vertical' }}></textarea>

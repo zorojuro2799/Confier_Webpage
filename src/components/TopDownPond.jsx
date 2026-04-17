@@ -8,17 +8,71 @@ export default function TopDownPond() {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     
-    let dpr = Math.min(window.devicePixelRatio || 1, 2);
     let width = canvas.offsetWidth;
     let height = canvas.offsetHeight;
+    const isMobile = width < 768;
+    let dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1 : 2);
     canvas.width = Math.max(1, Math.floor(width * dpr));
     canvas.height = Math.max(1, Math.floor(height * dpr));
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.imageSmoothingEnabled = true;
 
-    const isMobile = width < 768;
+    let waterGrad;
+    let surfaceGlow;
+    let midVeil;
+    let lowerDepth;
+    let grainLayer = null;
+
+    const rebuildBackgroundCaches = () => {
+      waterGrad = ctx.createLinearGradient(0, 0, 0, height);
+      waterGrad.addColorStop(0, '#4fa8b8');
+      waterGrad.addColorStop(0.32, '#2c8a9f');
+      waterGrad.addColorStop(0.68, '#0f6d82');
+      waterGrad.addColorStop(1, '#0a4f61');
+
+      surfaceGlow = ctx.createLinearGradient(0, 0, 0, height * 0.45);
+      surfaceGlow.addColorStop(0, 'rgba(180, 235, 240, 0.14)');
+      surfaceGlow.addColorStop(1, 'rgba(180, 235, 240, 0)');
+
+      midVeil = ctx.createLinearGradient(0, height * 0.2, 0, height * 0.9);
+      midVeil.addColorStop(0, 'rgba(255, 255, 255, 0)');
+      midVeil.addColorStop(0.45, 'rgba(18, 84, 101, 0.05)');
+      midVeil.addColorStop(1, 'rgba(6, 43, 56, 0.12)');
+
+      lowerDepth = ctx.createLinearGradient(0, height * 0.7, 0, height);
+      lowerDepth.addColorStop(0, 'rgba(0, 0, 0, 0)');
+      lowerDepth.addColorStop(1, 'rgba(6, 43, 56, 0.16)');
+
+      const mobile = width < 768;
+      const grainCanvas = document.createElement('canvas');
+      grainCanvas.width = Math.max(1, Math.floor(width));
+      grainCanvas.height = Math.max(1, Math.floor(height));
+      const gctx = grainCanvas.getContext('2d');
+      const grainCount = mobile
+        ? 72
+        : Math.min(190, Math.max(90, Math.floor((width * height) / 9000)));
+      for (let i = 0; i < grainCount; i += 1) {
+        gctx.fillStyle = `rgba(255, 255, 255, ${Math.random() * 0.03 + 0.01})`;
+        gctx.fillRect(
+          Math.random() * width,
+          Math.random() * height,
+          Math.random() * 0.85 + 0.2,
+          Math.random() * 0.85 + 0.2
+        );
+      }
+      grainLayer = grainCanvas;
+    };
+
+    rebuildBackgroundCaches();
     const scaleFactor = isMobile ? 0.6 : 1;
-    const mouse = { x: -1000, y: -1000, radius: isMobile ? 190 : 340 };
+    const mouse = {
+      x: -1000,
+      y: -1000,
+      radius: isMobile ? 220 : 360,
+      safeDistance: isMobile ? 90 : 120,
+      active: false,
+      lastSeen: 0
+    };
 
     // Helpers for softer blending (avoid harsh “metallic/tiger” contrast)
     const hexToRgba = (hex, alpha) => {
@@ -35,6 +89,8 @@ export default function TopDownPond() {
       const rect = canvas.getBoundingClientRect();
       mouse.x = e.clientX - rect.left;
       mouse.y = e.clientY - rect.top;
+      mouse.active = true;
+      mouse.lastSeen = performance.now();
     };
 
     const handleTouch = (e) => {
@@ -42,12 +98,15 @@ export default function TopDownPond() {
         const rect = canvas.getBoundingClientRect();
         mouse.x = e.touches[0].clientX - rect.left;
         mouse.y = e.touches[0].clientY - rect.top;
+        mouse.active = true;
+        mouse.lastSeen = performance.now();
       }
     };
-    
+
     const handleReset = () => {
       mouse.x = -1000;
       mouse.y = -1000;
+      mouse.active = false;
     };
 
     window.addEventListener('mousemove', handleMouseMove);
@@ -57,13 +116,15 @@ export default function TopDownPond() {
     window.addEventListener('mouseout', handleReset);
     
     const handleResize = () => {
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
       width = canvas.offsetWidth;
       height = canvas.offsetHeight;
+      const mobile = width < 768;
+      dpr = Math.min(window.devicePixelRatio || 1, mobile ? 1 : 2);
       canvas.width = Math.max(1, Math.floor(width * dpr));
       canvas.height = Math.max(1, Math.floor(height * dpr));
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.imageSmoothingEnabled = true;
+      rebuildBackgroundCaches();
     };
     window.addEventListener('resize', handleResize);
 
@@ -116,35 +177,77 @@ export default function TopDownPond() {
 
         let targetSpeedMultiplier = 1;
 
-        if (distance < mouse.radius) {
-          const force = (mouse.radius - distance) / mouse.radius;
+        let fleeVx = 0;
+        let fleeVy = 0;
+        let homeVx = 0;
+        let homeVy = 0;
+
+        if (mouse.active && distance < mouse.radius) {
+          const raw = (mouse.radius - distance) / mouse.radius;
+          // Slightly super-linear: lively mid-range reaction, still smooth at edge (no jolt).
+          const force = Math.pow(raw, 1.22);
           const fleeAngle = Math.atan2(dy, dx) + Math.PI;
 
-          // Blend toward flee angle to avoid harsh twitches near the cursor edge.
-          const fleeDiff = Math.atan2(Math.sin(fleeAngle - this.targetAngle), Math.cos(fleeAngle - this.targetAngle));
-          this.targetAngle += fleeDiff * (0.3 + force * 0.45);
+          // Steer heading toward escape: quick enough to feel alert, capped per frame for smooth arcs.
+          const fleeDiff = Math.atan2(
+            Math.sin(fleeAngle - this.targetAngle),
+            Math.cos(fleeAngle - this.targetAngle)
+          );
+          const turnBlend = 0.1 + force * 0.22;
+          this.targetAngle += fleeDiff * Math.min(turnBlend, 0.28);
 
-          // Fast escape response while staying smooth.
-          targetSpeedMultiplier = 1.35 + (force * 13.5);
-          this.swimCycle += 0.34 * force;
+          // Extra urgency only when almost under the cursor (keeps “no touch” without a hard shove).
+          const inner =
+            distance < mouse.safeDistance
+              ? Math.max(0, 1 - distance / Math.max(mouse.safeDistance, 1))
+              : 0;
+
+          targetSpeedMultiplier = 1 + force * 10.5 + inner * 2.2;
+          this.swimCycle += 0.26 * force + 0.12 * inner;
           this.calmDrift = 0;
-          this.escapeEase = Math.min(1, this.escapeEase + 0.22);
+          this.escapeEase = Math.min(1, this.escapeEase + 0.085);
+
+          // Radial acceleration away from pointer — primary “dart” without position snaps.
+          const nx = dx / (distance || 1);
+          const ny = dy / (distance || 1);
+          const biasStrength = this.baseSpeed * (1.75 + force * 6.2 + inner * 4.5);
+          fleeVx = -nx * biasStrength;
+          fleeVy = -ny * biasStrength;
         } else {
-          // Regain calm movement in a few seconds instead of feeling empty.
-          this.calmDrift = Math.min(1, this.calmDrift + 0.012);
-          targetSpeedMultiplier = 1 + (0.38 * (1 - this.calmDrift));
-          this.escapeEase = Math.max(0, this.escapeEase - 0.045);
+          // Return to calm quickly so the pond feels “full” again after pointer leaves.
+          this.calmDrift = Math.min(1, this.calmDrift + 0.038);
+          targetSpeedMultiplier = 1 + (0.22 * (1 - this.calmDrift));
+          this.escapeEase = Math.max(0, this.escapeEase - 0.058);
+
+          // Gentle pull toward pond centre — refills visual density without snapping.
+          const cx = width * 0.5;
+          const cy = height * 0.5;
+          const hx = cx - this.x;
+          const hy = cy - this.y;
+          const distH = Math.hypot(hx, hy);
+          if (distH > 40) {
+            const urgency = (1 - this.calmDrift * 0.75) * (0.02 + (1 - this.escapeEase) * 0.042);
+            homeVx = (hx / distH) * this.baseSpeed * urgency * 6.2;
+            homeVy = (hy / distH) * this.baseSpeed * urgency * 6.2;
+          }
         }
 
-        this.currentSpeedMultiplier += (targetSpeedMultiplier - this.currentSpeedMultiplier) * (0.08 + this.escapeEase * 0.09);
+        // Ease speed toward target: responsive flee, soft landing when threat ends.
+        this.currentSpeedMultiplier +=
+          (targetSpeedMultiplier - this.currentSpeedMultiplier) * (0.058 + this.escapeEase * 0.072);
 
         const diff = this.targetAngle - this.angle;
-        this.angle += Math.atan2(Math.sin(diff), Math.cos(diff)) * (0.085 + this.escapeEase * 0.065);
+        this.angle += Math.atan2(Math.sin(diff), Math.cos(diff)) * (0.072 + this.escapeEase * 0.068);
 
-        const targetVx = Math.cos(this.angle) * this.baseSpeed * this.currentSpeedMultiplier;
-        const targetVy = Math.sin(this.angle) * this.baseSpeed * this.currentSpeedMultiplier;
-        this.speedX += (targetVx - this.speedX) * (0.22 + this.escapeEase * 0.12);
-        this.speedY += (targetVy - this.speedY) * (0.22 + this.escapeEase * 0.12);
+        const targetVx =
+          Math.cos(this.angle) * this.baseSpeed * this.currentSpeedMultiplier + fleeVx + homeVx;
+        const targetVy =
+          Math.sin(this.angle) * this.baseSpeed * this.currentSpeedMultiplier + fleeVy + homeVy;
+
+        // Inertia: quicker catch-up when fleeing, still smooth (no velocity step-change).
+        const inertia = 0.118 + this.escapeEase * 0.092;
+        this.speedX += (targetVx - this.speedX) * inertia;
+        this.speedY += (targetVy - this.speedY) * inertia;
 
         this.x += this.speedX;
         this.y += this.speedY;
@@ -415,7 +518,7 @@ export default function TopDownPond() {
       }
     }
 
-    const shrimpCount = isMobile ? 20 : 36;
+    const shrimpCount = isMobile ? 16 : 28;
     const shrimpFlock = [];
     const minSpacing = isMobile ? 48 : 66;
     for (let i = 0; i < shrimpCount; i++) {
@@ -436,9 +539,9 @@ export default function TopDownPond() {
       shrimpFlock.push(shrimp);
     }
 
-    // Particle system for realistic pond effects
+    const particleCount = isMobile ? 28 : 48;
     const particles = [];
-    for (let i = 0; i < 80; i++) {
+    for (let i = 0; i < particleCount; i++) {
       particles.push({
         x: Math.random() * width,
         y: Math.random() * height,
@@ -448,62 +551,32 @@ export default function TopDownPond() {
       });
     }
 
-    // Grain/noise overlay for a more realistic water surface
-    const grainCount = Math.min(700, Math.max(220, Math.floor((width * height) / 1800)));
-    const grain = [];
-    for (let i = 0; i < grainCount; i++) {
-      grain.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        r: Math.random() * 0.9 + 0.25,
-        a: Math.random() * 0.04 + 0.015
-      });
-    }
-
-    let rafId;
+    let rafId = null;
     let time = 0;
-    const animate = () => {
+    let heroVisible = true;
+
+    const drawFrame = () => {
       time += 1;
       ctx.clearRect(0, 0, width, height);
 
-      // Calm logo-matching teal to blue base
-      const waterGrad = ctx.createLinearGradient(0, 0, 0, height);
-      waterGrad.addColorStop(0, '#4fa8b8');
-      waterGrad.addColorStop(0.32, '#2c8a9f');
-      waterGrad.addColorStop(0.68, '#0f6d82');
-      waterGrad.addColorStop(1, '#0a4f61');
       ctx.fillStyle = waterGrad;
       ctx.fillRect(0, 0, width, height);
 
-      // Soft upper-water glow for calm depth
-      const surfaceGlow = ctx.createLinearGradient(0, 0, 0, height * 0.45);
-      surfaceGlow.addColorStop(0, 'rgba(180, 235, 240, 0.14)');
-      surfaceGlow.addColorStop(1, 'rgba(180, 235, 240, 0)');
       ctx.fillStyle = surfaceGlow;
       ctx.fillRect(0, 0, width, height * 0.45);
 
-      // Mid-water veil to create natural layered depth
-      const midVeil = ctx.createLinearGradient(0, height * 0.2, 0, height * 0.9);
-      midVeil.addColorStop(0, 'rgba(255, 255, 255, 0)');
-      midVeil.addColorStop(0.45, 'rgba(18, 84, 101, 0.05)');
-      midVeil.addColorStop(1, 'rgba(6, 43, 56, 0.12)');
       ctx.fillStyle = midVeil;
       ctx.fillRect(0, 0, width, height);
 
-      // Gentle bottom haze without visible separation
-      const lowerDepth = ctx.createLinearGradient(0, height * 0.7, 0, height);
-      lowerDepth.addColorStop(0, 'rgba(0, 0, 0, 0)');
-      lowerDepth.addColorStop(1, 'rgba(6, 43, 56, 0.16)');
       ctx.fillStyle = lowerDepth;
       ctx.fillRect(0, height * 0.7, width, height * 0.3);
 
-      // Very light grain overlay
-      for (let i = 0; i < grain.length; i++) {
-        const g = grain[i];
-        const wobble = Math.sin(time * 0.01 + g.x * 0.01) * 0.18;
-        ctx.globalAlpha = g.a;
-        ctx.fillStyle = 'rgba(255, 255, 255, 1)';
-        ctx.fillRect(g.x, g.y + wobble, g.r, g.r);
+      if (grainLayer) {
+        ctx.save();
+        ctx.globalAlpha = 0.92;
+        ctx.translate(0, Math.sin(time * 0.008) * 0.75);
+        ctx.drawImage(grainLayer, 0, 0);
+        ctx.restore();
       }
       ctx.globalAlpha = 1;
 
@@ -537,19 +610,49 @@ export default function TopDownPond() {
         shrimp.update();
         shrimp.draw();
       });
-
-      rafId = requestAnimationFrame(animate);
     };
-    animate();
+
+    const loop = () => {
+      rafId = null;
+      if (!heroVisible) return;
+      drawFrame();
+      rafId = requestAnimationFrame(loop);
+    };
+
+    const stopLoop = () => {
+      if (rafId != null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+    };
+
+    const startLoop = () => {
+      if (heroVisible && rafId == null) rafId = requestAnimationFrame(loop);
+    };
+
+    const io =
+      typeof IntersectionObserver !== 'undefined'
+        ? new IntersectionObserver(
+            ([entry]) => {
+              heroVisible = entry?.isIntersecting ?? true;
+              if (heroVisible) startLoop();
+              else stopLoop();
+            },
+            { threshold: 0.02, rootMargin: '64px 0px 64px 0px' }
+          )
+        : null;
+    io?.observe(canvas);
+    startLoop();
 
     return () => {
+      io?.disconnect();
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('touchstart', handleTouch);
       window.removeEventListener('touchmove', handleTouch);
       window.removeEventListener('touchend', handleReset);
       window.removeEventListener('mouseout', handleReset);
       window.removeEventListener('resize', handleResize);
-      cancelAnimationFrame(rafId);
+      stopLoop();
     };
 
   }, []);

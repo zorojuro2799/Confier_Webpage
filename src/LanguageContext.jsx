@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useMemo, useState } from 'react';
+import { teExtras, hiExtras } from './locales/langExtras.js';
 
 const LanguageContext = createContext();
 
@@ -36,6 +37,19 @@ const enDict = {
   'prod.desc': 'Scientific formulations designed to enhance growth, survival, and pond health.',
   'prod.details': 'View Details',
   'prod.interact': 'Tap to Interact 3D',
+  'prod.price.contact': 'Contact for pricing',
+  'prod.modal.rotate3d': 'Drag to rotate the 3D model',
+  'prod.modal.verifiedBenefits': 'Verified benefits',
+  'prod.modal.composition': 'Composition',
+  'prod.modal.instructions': 'Instructions for use',
+  'prod.modal.dosage': 'Dosage',
+  'prod.modal.netContent': 'Net content',
+  'prod.modal.caaNo': 'CAA no.',
+  'prod.modal.bulkNote': 'Need bulk pricing? Translated manuals available.',
+  'prod.addToCart': 'Add to cart',
+  'prod.wishlist': 'Wishlist',
+  'prod.saved': 'Saved',
+  'prod.modal.close': 'Close',
   
   'rnd.tag': 'Innovation Lab',
   'rnd.title': 'Research & Development',
@@ -113,7 +127,64 @@ const enDict = {
   
   'events.tag': 'Community Feed',
   'events.title': 'News & Bulletins',
-  'events.desc': 'Latest field updates and technical bulletins.'
+  'events.desc': 'Latest field updates and technical bulletins.',
+  'events.latestHeading': 'Latest updates',
+  'events.adminOn': 'Admin mode on (click to turn off)',
+  'events.adminOff': 'Simulate admin access',
+  'events.createPost': 'Create new post',
+  'events.hide': 'Hide',
+  'events.expand': 'Expand',
+  'events.uploadImage': 'Upload image *',
+  'events.location': 'Location',
+  'events.locationPh': 'e.g. Kakinada farm',
+  'events.caption': 'Caption *',
+  'events.captionPh': 'Write a caption…',
+  'events.postCta': 'Post to feed',
+  'events.deletePost': 'Delete post',
+  'events.deleteComment': 'Delete comment',
+  'events.likes': 'likes',
+  'events.noComments': 'No comments yet. Be the first to comment!',
+  'events.commentPh': 'Add a comment…',
+  'events.post': 'Post',
+  'events.emptyTitle': 'No posts yet',
+  'events.emptyHint': 'Turn on admin mode to create the first post.',
+  'events.alertNeedImage': 'Please provide an image and a caption.',
+  'events.confirmDelete': 'Are you sure you want to delete this post?',
+  'stories.quote': 'Their growth tells our success.',
+  'stories.watch': 'Watch',
+  'contact.alertThanks': 'Thanks for reaching out! We will contact you soon.',
+  'checkout.title': 'Checkout',
+  'checkout.step': 'Step {n} of 3',
+  'checkout.cartTitle': 'Shopping cart ({count} items)',
+  'checkout.empty': 'Your cart is empty',
+  'checkout.subtotal': 'Subtotal:',
+  'checkout.gst': 'GST (18%):',
+  'checkout.total': 'Total:',
+  'checkout.deliveryTitle': 'Delivery & contact information',
+  'checkout.paymentTitle': 'Payment method',
+  'checkout.orderSummary': 'Order summary',
+  'checkout.items': 'Items:',
+  'checkout.totalAmount': 'Total amount:',
+  'checkout.close': 'Close',
+  'checkout.back': 'Back',
+  'checkout.continue': 'Continue',
+  'checkout.review': 'Review payment',
+  'checkout.placeOrder': 'Place order',
+  'checkout.processing': 'Processing…',
+  'checkout.field.fullName': 'Full name',
+  'checkout.field.email': 'Email',
+  'checkout.field.phone': 'Phone',
+  'checkout.field.company': 'Company',
+  'checkout.field.address': 'Address',
+  'checkout.field.city': 'City',
+  'checkout.field.state': 'State / province',
+  'checkout.field.zip': 'Zip code',
+  'checkout.field.country': 'Country',
+  'checkout.pay.stripe': 'Stripe / credit card',
+  'checkout.pay.razorpay': 'Razorpay (UPI / card / net banking)',
+  'checkout.pay.bank': 'Bank transfer',
+  'checkout.success': 'Order placed successfully! Order ID: ',
+  'checkout.payFail': 'Payment failed: '
 };
 
 const teDict = {
@@ -252,8 +323,8 @@ const hiDict = {
 
 const dictionaries = {
   en: enDict,
-  te: { ...enDict, ...teDict },
-  hi: { ...enDict, ...hiDict }
+  te: { ...enDict, ...teDict, ...teExtras },
+  hi: { ...enDict, ...hiDict, ...hiExtras }
 };
 
 export function LanguageProvider({ children }) {

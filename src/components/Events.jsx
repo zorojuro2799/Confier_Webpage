@@ -86,7 +86,7 @@ export default function Events() {
   };
 
   const handleDeletePost = (postId) => {
-    if(window.confirm("Are you sure you want to delete this post?")) {
+    if (window.confirm(t('events.confirmDelete'))) {
       setPosts(posts.filter(p => p.id !== postId));
     }
   };
@@ -94,7 +94,7 @@ export default function Events() {
   const handleCreatePost = (e) => {
     e.preventDefault();
     if (!newPost.imageUrl || !newPost.caption) {
-      alert("Please provide an image and a caption.");
+      alert(t('events.alertNeedImage'));
       return;
     }
 
@@ -133,7 +133,7 @@ export default function Events() {
             borderRadius: '20px',
             marginBottom: '1rem'
           }}>
-            {t('events.tag') || t('Community Feed')}
+            {t('events.tag')}
           </span>
           <h2 style={{ 
             fontFamily: "'Playfair Display', serif", 
@@ -142,7 +142,7 @@ export default function Events() {
             lineHeight: 1.1, 
             marginBottom: '1rem' 
           }}>
-            {t('Latest Updates')}
+            {t('events.latestHeading')}
           </h2>
           
           {/* Admin Simulator Toggle */}
@@ -160,7 +160,7 @@ export default function Events() {
             }}
           >
             <ShieldAlert size={16} />
-            {isAdmin ? t('Admin Mode Active (Click to disable)') : t('Simulate Admin Access')}
+            {isAdmin ? t('events.adminOn') : t('events.adminOff')}
           </button>
         </div>
 
@@ -171,14 +171,14 @@ export default function Events() {
               onClick={() => setShowAddPost(!showAddPost)}
               style={{ padding: '1rem 1.5rem', background: '#F9FAFB', borderBottom: '1px solid #E5E7EB', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
             >
-              <strong style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#111827' }}><PlusCircle size={18}/> {t('Create New Post')}</strong>
-              <span style={{ fontSize: '0.85rem', color: '#6B7280' }}>{showAddPost ? t('Hide') : t('Expand')}</span>
+              <strong style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#111827' }}><PlusCircle size={18}/> {t('events.createPost')}</strong>
+              <span style={{ fontSize: '0.85rem', color: '#6B7280' }}>{showAddPost ? t('events.hide') : t('events.expand')}</span>
             </div>
             
             {showAddPost && (
               <form onSubmit={handleCreatePost} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '6px', color: '#374151' }}>Upload Image *</label>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '6px', color: '#374151' }}>{t('events.uploadImage')}</label>
                   <input 
                     type="file" 
                     accept="image/*"
@@ -200,23 +200,23 @@ export default function Events() {
                   )}
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '6px', color: '#374151' }}>Location</label>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '6px', color: '#374151' }}>{t('events.location')}</label>
                   <input 
-                    type="text" placeholder="e.g., Kakinada Farm" 
+                    type="text" placeholder={t('events.locationPh')} 
                     value={newPost.location} onChange={e => setNewPost({...newPost, location: e.target.value})}
                     style={{ width: '100%', padding: '10px', borderRadius: '12px', border: '1px solid #D1D5DB', fontSize: '0.9rem' }}
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '6px', color: '#374151' }}>Caption *</label>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '6px', color: '#374151' }}>{t('events.caption')}</label>
                   <textarea 
-                    rows="3" placeholder="Write a caption..." required
+                    rows="3" placeholder={t('events.captionPh')} required
                     value={newPost.caption} onChange={e => setNewPost({...newPost, caption: e.target.value})}
                     style={{ width: '100%', padding: '10px', borderRadius: '12px', border: '1px solid #D1D5DB', fontSize: '0.9rem', resize: 'vertical' }}
                   />
                 </div>
                 <button type="submit" style={{ background: 'var(--teal-dark, #005B96)', color: 'white', padding: '12px', borderRadius: '12px', border: 'none', fontWeight: 600, cursor: 'pointer' }}>
-                  Post to Feed
+                  {t('events.postCta')}
                 </button>
               </form>
             )}
@@ -263,7 +263,7 @@ export default function Events() {
                   <button 
                     onClick={() => handleDeletePost(post.id)}
                     style={{ background: 'none', border: 'none', color: '#DC2626', cursor: 'pointer', padding: '8px' }}
-                    title="Delete Post"
+                    title={t('events.deletePost')}
                   >
                     <Trash2 size={18} />
                   </button>
@@ -291,7 +291,7 @@ export default function Events() {
 
               {/* Likes Count */}
               <div style={{ padding: '0 16px', fontWeight: 700, fontSize: '0.95rem', color: '#111827', marginBottom: '8px' }}>
-                {post.likes.toLocaleString()} likes
+                {post.likes.toLocaleString()} {t('events.likes')}
               </div>
 
               {/* Caption */}
@@ -313,7 +313,7 @@ export default function Events() {
                         <button 
                           onClick={() => handleDeleteComment(post.id, comment.id)}
                           style={{ background: 'none', border: 'none', color: '#9CA3AF', cursor: 'pointer', padding: '0 4px' }}
-                          title="Delete Comment"
+                          title={t('events.deleteComment')}
                         >
                           <Trash2 size={14} />
                         </button>
@@ -321,7 +321,7 @@ export default function Events() {
                     </div>
                   ))
                 ) : (
-                  <div style={{ fontSize: '0.85rem', color: '#9CA3AF' }}>No comments yet. Be the first to comment!</div>
+                  <div style={{ fontSize: '0.85rem', color: '#9CA3AF' }}>{t('events.noComments')}</div>
                 )}
               </div>
 
@@ -335,7 +335,7 @@ export default function Events() {
               }}>
                 <input 
                   type="text" 
-                  placeholder="Add a comment..." 
+                  placeholder={t('events.commentPh')} 
                   value={commentInputs[post.id] || ''}
                   onChange={(e) => setCommentInputs({...commentInputs, [post.id]: e.target.value})}
                   onKeyPress={(e) => e.key === 'Enter' && handleAddComment(post.id)}
@@ -354,7 +354,7 @@ export default function Events() {
                     fontSize: '0.95rem'
                   }}
                 >
-                  Post
+                  {t('events.post')}
                 </button>
               </div>
 
@@ -364,8 +364,8 @@ export default function Events() {
           {posts.length === 0 && (
             <div style={{ textAlign: 'center', padding: '4rem', color: '#6B7280', background: '#fff', borderRadius: '16px', border: '1px dashed #E5E7EB' }}>
               <ImagePlus size={48} style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
-              <h3>No posts yet</h3>
-              <p>Turn on Admin Mode to create the first post.</p>
+              <h3>{t('events.emptyTitle')}</h3>
+              <p>{t('events.emptyHint')}</p>
             </div>
           )}
         </div>

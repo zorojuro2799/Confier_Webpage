@@ -26,7 +26,7 @@ export default function Stories() {
             {t('nav.results')}
           </h2>
           <p style={{ color: '#0ea5e9', fontSize: '1.4rem', fontWeight: 600, marginTop: '1rem', fontStyle: 'italic', fontFamily: 'var(--font-serif)' }}>
-            "Their growth tells our success."
+            &ldquo;{t('stories.quote')}&rdquo;
           </p>
         </div>
 

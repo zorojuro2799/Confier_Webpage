@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { X, Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
 import { useCart } from '../CartContext';
 import { useLanguage } from '../LanguageContext';
+import { localizeProduct } from '../data/productI18n.js';
 
 export default function Checkout({ isOpen, onClose }) {
   const { cartItems, removeFromCart, updateCartQuantity, clearCart, getCartTotal } = useCart();
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const [step, setStep] = useState('cart'); // 'cart' | 'details' | 'payment'
   const [formData, setFormData] = useState({
     fullName: '',
@@ -38,7 +39,7 @@ export default function Checkout({ isOpen, onClose }) {
       // Payment processing logic will go here
       // For now, we'll simulate payment
       setTimeout(() => {
-        alert('Order placed successfully! Order ID: ORD-' + Date.now());
+        alert(t('checkout.success') + 'ORD-' + Date.now());
         clearCart();
         setStep('cart');
         onClose();
@@ -56,7 +57,7 @@ export default function Checkout({ isOpen, onClose }) {
         setLoading(false);
       }, 1500);
     } catch (error) {
-      alert('Payment failed: ' + error.message);
+      alert(t('checkout.payFail') + error.message);
       setLoading(false);
     }
   };
@@ -79,9 +80,9 @@ export default function Checkout({ isOpen, onClose }) {
           color: '#fff', padding: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center'
         }}>
           <div>
-            <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>Checkout</h2>
+            <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>{t('checkout.title')}</h2>
             <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.9rem', opacity: 0.9 }}>
-              Step {step === 'cart' ? '1' : step === 'details' ? '2' : '3'} of 3
+              {t('checkout.step').replace('{n}', step === 'cart' ? '1' : step === 'details' ? '2' : '3')}
             </p>
           </div>
           <button
@@ -102,18 +103,20 @@ export default function Checkout({ isOpen, onClose }) {
           {step === 'cart' && (
             <div>
               <h3 style={{ marginBottom: '1.5rem', color: 'var(--clr-teal-dark)', fontWeight: 700 }}>
-                Shopping Cart ({cartItems.length} items)
+                {t('checkout.cartTitle').replace('{count}', String(cartItems.length))}
               </h3>
 
               {cartItems.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--clr-text-muted)' }}>
                   <ShoppingBag size={48} style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
-                  <p>Your cart is empty</p>
+                  <p>{t('checkout.empty')}</p>
                 </div>
               ) : (
                 <>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
-                    {cartItems.map(item => (
+                    {cartItems.map(item => {
+                      const li = localizeProduct(lang, item);
+                      return (
                       <div
                         key={item.id}
                         style={{
@@ -127,7 +130,7 @@ export default function Checkout({ isOpen, onClose }) {
                             {item.name}
                           </h4>
                           <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.9rem', color: 'var(--clr-text-muted)' }}>
-                            {item.subtitle}
+                            {li.subtitle}
                           </p>
                         </div>
 
@@ -161,7 +164,8 @@ export default function Checkout({ isOpen, onClose }) {
                           </button>
                         </div>
                       </div>
-                    ))}
+                    );
+                    })}
                   </div>
 
                   {/* Summary */}
@@ -173,13 +177,13 @@ export default function Checkout({ isOpen, onClose }) {
                       display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem',
                       paddingBottom: '0.75rem', borderBottom: '1px solid var(--clr-border)'
                     }}>
-                      <span>Subtotal:</span>
+                      <span>{t('checkout.subtotal')}</span>
                       <span style={{ fontWeight: 700 }}>₹{total.toFixed(2)}</span>
                     </div>
                     <div style={{
                       display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem'
                     }}>
-                      <span>GST (18%):</span>
+                      <span>{t('checkout.gst')}</span>
                       <span style={{ fontWeight: 700 }}>₹{gst.toFixed(2)}</span>
                     </div>
                     <div style={{
@@ -187,7 +191,7 @@ export default function Checkout({ isOpen, onClose }) {
                       fontWeight: 700, color: 'var(--clr-teal-dark)', paddingTop: '0.75rem',
                       borderTop: '2px solid var(--clr-border)'
                     }}>
-                      <span>Total:</span>
+                      <span>{t('checkout.total')}</span>
                       <span>₹{finalTotal.toFixed(2)}</span>
                     </div>
                   </div>
@@ -199,20 +203,20 @@ export default function Checkout({ isOpen, onClose }) {
           {step === 'details' && (
             <div>
               <h3 style={{ marginBottom: '1.5rem', color: 'var(--clr-teal-dark)', fontWeight: 700 }}>
-                Delivery & Contact Information
+                {t('checkout.deliveryTitle')}
               </h3>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
                 {[
-                  { label: 'Full Name', name: 'fullName', required: true },
-                  { label: 'Email', name: 'email', type: 'email', required: true },
-                  { label: 'Phone', name: 'phone', required: true },
-                  { label: 'Company', name: 'company' },
-                  { label: 'Address', name: 'address', required: true },
-                  { label: 'City', name: 'city', required: true },
-                  { label: 'State/Province', name: 'state', required: true },
-                  { label: 'Zip Code', name: 'zipCode', required: true },
-                  { label: 'Country', name: 'country', required: true }
+                  { label: t('checkout.field.fullName'), name: 'fullName', required: true },
+                  { label: t('checkout.field.email'), name: 'email', type: 'email', required: true },
+                  { label: t('checkout.field.phone'), name: 'phone', required: true },
+                  { label: t('checkout.field.company'), name: 'company' },
+                  { label: t('checkout.field.address'), name: 'address', required: true },
+                  { label: t('checkout.field.city'), name: 'city', required: true },
+                  { label: t('checkout.field.state'), name: 'state', required: true },
+                  { label: t('checkout.field.zip'), name: 'zipCode', required: true },
+                  { label: t('checkout.field.country'), name: 'country', required: true }
                 ].map(field => (
                   <div key={field.name} style={{ gridColumn: field.name === 'address' ? '1 / -1' : 'auto' }}>
                     <label style={{
@@ -245,14 +249,14 @@ export default function Checkout({ isOpen, onClose }) {
           {step === 'payment' && (
             <div>
               <h3 style={{ marginBottom: '1.5rem', color: 'var(--clr-teal-dark)', fontWeight: 700 }}>
-                Payment Method
+                {t('checkout.paymentTitle')}
               </h3>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
                 {[
-                  { id: 'stripe', label: 'Stripe / Credit Card', icon: '💳' },
-                  { id: 'razorpay', label: 'Razorpay (UPI/Card/Net Banking)', icon: '📱' },
-                  { id: 'bank', label: 'Bank Transfer', icon: '🏦' }
+                  { id: 'stripe', label: t('checkout.pay.stripe'), icon: '💳' },
+                  { id: 'razorpay', label: t('checkout.pay.razorpay'), icon: '📱' },
+                  { id: 'bank', label: t('checkout.pay.bank'), icon: '🏦' }
                 ].map(method => (
                   <label key={method.id} style={{
                     display: 'flex', alignItems: 'center', padding: '1rem',
@@ -279,22 +283,22 @@ export default function Checkout({ isOpen, onClose }) {
                 borderRadius: '12px', border: '1px solid var(--clr-border)', marginBottom: '1.5rem'
               }}>
                 <h4 style={{ margin: '0 0 1rem 0', color: 'var(--clr-teal-dark)', fontWeight: 700 }}>
-                  Order Summary
+                  {t('checkout.orderSummary')}
                 </h4>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                  <span>Items:</span>
+                  <span>{t('checkout.items')}</span>
                   <span>{cartItems.reduce((sum, item) => sum + item.quantity, 0)}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                  <span>Subtotal:</span>
+                  <span>{t('checkout.subtotal')}</span>
                   <span>₹{total.toFixed(2)}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px solid var(--clr-border)' }}>
-                  <span>GST (18%):</span>
+                  <span>{t('checkout.gst')}</span>
                   <span>₹{gst.toFixed(2)}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.2rem', fontWeight: 700, color: 'var(--clr-teal-dark)' }}>
-                  <span>Total Amount:</span>
+                  <span>{t('checkout.totalAmount')}</span>
                   <span>₹{finalTotal.toFixed(2)}</span>
                 </div>
               </div>
@@ -318,7 +322,7 @@ export default function Checkout({ isOpen, onClose }) {
               color: 'var(--clr-text-main)', cursor: 'pointer', fontWeight: 600
             }}
           >
-            {step === 'cart' ? 'Close' : 'Back'}
+            {step === 'cart' ? t('checkout.close') : t('checkout.back')}
           </button>
 
           <button
@@ -333,7 +337,7 @@ export default function Checkout({ isOpen, onClose }) {
               padding: '0.75rem 1.5rem', opacity: step === 'cart' && cartItems.length === 0 ? 0.5 : 1
             }}
           >
-            {loading ? 'Processing...' : step === 'cart' ? 'Continue' : step === 'details' ? 'Review Payment' : 'Place Order'}
+            {loading ? t('checkout.processing') : step === 'cart' ? t('checkout.continue') : step === 'details' ? t('checkout.review') : t('checkout.placeOrder')}
           </button>
         </div>
       </div>

@@ -6,6 +6,10 @@ const isProd = process.env.NODE_ENV === 'production'
 
 // https://vite.dev/config/
 export default defineConfig({
+  build: {
+    // Single main bundle is intentional for this SPA; avoids noisy CI/Vercel warnings.
+    chunkSizeWarningLimit: 700
+  },
   plugins: [
     react(),
     VitePWA({

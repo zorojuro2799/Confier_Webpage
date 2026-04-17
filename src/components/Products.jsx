@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Box, X, CheckCircle2, ShoppingCart, Heart } from 'lucide-react';
 import { useLanguage } from '../LanguageContext.jsx';
 import { useCart } from '../CartContext.jsx';
+import { localizeProduct } from '../data/productI18n.js';
 
 export const products = [
   { 
@@ -282,7 +283,7 @@ export const products = [
 
 export default function Products() {
   const [activeProduct, setActiveProduct] = useState(null);
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const { addToCart, addToWishlist, isInWishlist } = useCart();
 
   useEffect(() => {
@@ -330,7 +331,9 @@ export default function Products() {
           paddingBottom: isMobile ? '1rem' : '0',
           scrollbarWidth: 'none' // Firefox fallback
         }}>
-          {products.map(product => (
+          {products.map((product) => {
+            const p = localizeProduct(lang, product);
+            return (
             <div 
               key={product.id} 
               className="card-hover" 
@@ -364,28 +367,31 @@ export default function Products() {
               
               <div style={{ padding: isMobile ? '1rem' : '1.5rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <div style={{ color: 'var(--clr-orange)', fontSize: isMobile ? '0.65rem' : '0.75rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '0.25rem' }}>
-                  {t(product.subtitle)}
+                  {p.subtitle}
                 </div>
-                <h3 style={{ fontFamily: "'Caveat', cursive", fontSize: isMobile ? '2rem' : '2.35rem', fontWeight: 700, color: 'var(--clr-teal-dark)', marginBottom: '0.45rem', lineHeight: 1 }}>
-                  {t(product.name)}
+                <h3 style={{ fontFamily: "'Poppins', sans-serif", fontSize: isMobile ? '1.15rem' : '1.5rem', fontWeight: 700, color: 'var(--clr-teal-dark)', marginBottom: '0.45rem', lineHeight: 1.2, letterSpacing: '-0.01em' }}>
+                  {product.name}
                 </h3>
                 {!isMobile && (
                   <p style={{ fontSize: '0.9rem', color: 'var(--clr-text-muted)', lineHeight: 1.6, flex: 1, marginBottom: '1.5rem' }}>
-                    {t(product.benefits[0])}
+                    {p.benefits[0]}
                   </p>
                 )}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid var(--clr-border)', paddingTop: isMobile ? '0.5rem' : '1rem' }}>
-                  <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--clr-teal-dark)', fontSize: isMobile ? '0.8rem' : '1rem' }}>{t(product.price)}</span>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--clr-teal-dark)', fontSize: isMobile ? '0.8rem' : '1rem' }}>{t('prod.price.contact')}</span>
                   {!isMobile && <span style={{ fontSize: '0.85rem', color: 'var(--clr-orange)', fontWeight: 600 }}>{t('prod.details')} →</span>}
                 </div>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
       {/* ----------- MODAL OVERLAY ----------- */}
-      {activeProduct && (
+      {activeProduct && (() => {
+        const ap = localizeProduct(lang, activeProduct);
+        return (
         <div style={{
           position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'max(1rem, env(safe-area-inset-top)) 1rem 1rem'
@@ -408,7 +414,7 @@ export default function Products() {
               </button>
               
               <div style={{ position: 'absolute', top: '20px', left: '20px', background: 'rgba(0,0,0,0.3)', padding: '6px 12px', borderRadius: 'var(--radius-full)', fontSize: '0.75rem', fontFamily: 'var(--font-mono)' }}>
-                {t('Drag to Rotate 3D Model')}
+                {t('prod.modal.rotate3d')}
               </div>
 
               {/* Fake 3D Box for now */}
@@ -420,61 +426,61 @@ export default function Products() {
             {/* Bottom: Clean Data */}
             <div style={{ padding: isMobile ? '1rem' : '2rem', overflowY: 'auto' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: isMobile ? 'flex-start' : 'center', flexDirection: isMobile ? 'column' : 'row', marginBottom: '1rem', gap: '0.6rem' }}>
-                <h2 style={{ fontFamily: "'Caveat', cursive", fontSize: isMobile ? '2.25rem' : '3rem', fontWeight: 700, color: 'var(--clr-teal-dark)', lineHeight: 1 }}>
-                  {t(activeProduct.name)}
+                <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: isMobile ? '1.6rem' : '2.25rem', fontWeight: 700, color: 'var(--clr-teal-dark)', lineHeight: 1.15, letterSpacing: '-0.01em' }}>
+                  {activeProduct.name}
                 </h2>
                 <div style={{ fontFamily: 'var(--font-mono)', fontSize: isMobile ? '1rem' : '1.5rem', color: 'var(--clr-orange-warm)', fontWeight: 700 }}>
-                  {t(activeProduct.price)}
+                  {t('prod.price.contact')}
                 </div>
               </div>
               
-              {activeProduct.tagline && (
+              {ap.tagline && (
                 <p style={{ fontSize: '1.05rem', color: 'var(--clr-teal-dark)', lineHeight: 1.6, marginBottom: '2rem', fontStyle: 'italic', fontWeight: 600, paddingLeft: '1rem', borderLeft: '3px solid var(--clr-orange)' }}>
-                  "{t(activeProduct.tagline)}"
+                  &ldquo;{ap.tagline}&rdquo;
                 </p>
               )}
 
               <div style={{ marginTop: '1rem', padding: '1.5rem', background: 'var(--clr-bg-surface)', borderRadius: '12px', border: '1px solid var(--clr-border)' }}>
-                <h4 style={{ color: 'var(--clr-teal-dark)', fontWeight: 800, marginBottom: '1.5rem', fontSize: '1rem', textTransform: 'uppercase', letterSpacing: '1px' }}>{t('Verified Benefits')}</h4>
+                <h4 style={{ color: 'var(--clr-teal-dark)', fontWeight: 800, marginBottom: '1.5rem', fontSize: '1rem', textTransform: 'uppercase', letterSpacing: '1px' }}>{t('prod.modal.verifiedBenefits')}</h4>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  {activeProduct.benefits.map((benefit, idx) => (
+                  {ap.benefits.map((benefit, idx) => (
                     <li key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', fontSize: '0.95rem', color: 'var(--clr-text-main)', lineHeight: 1.5 }}>
                       <CheckCircle2 size={18} color="var(--clr-orange)" style={{ flexShrink: 0, marginTop: '2px' }} />
-                      <span>{t(benefit)}</span>
+                      <span>{benefit}</span>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              {(activeProduct.composition || activeProduct.usage) && (
+              {(ap.composition || ap.usage) && (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', marginTop: '1.5rem' }}>
-                  {activeProduct.composition && (
+                  {ap.composition && (
                     <div style={{ padding: '1.5rem', background: 'var(--clr-bg-surface)', borderRadius: '12px', border: '1px solid var(--clr-border)' }}>
-                       <h4 style={{ color: 'var(--clr-teal-dark)', fontWeight: 800, marginBottom: '1rem', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>{t('Composition')}</h4>
-                       <p style={{ fontSize: '0.9rem', color: 'var(--clr-text-main)', lineHeight: 1.6, margin: 0 }}>{t(activeProduct.composition)}</p>
+                       <h4 style={{ color: 'var(--clr-teal-dark)', fontWeight: 800, marginBottom: '1rem', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>{t('prod.modal.composition')}</h4>
+                       <p style={{ fontSize: '0.9rem', color: 'var(--clr-text-main)', lineHeight: 1.6, margin: 0 }}>{ap.composition}</p>
                     </div>
                   )}
 
-                  {activeProduct.usage && (
+                  {ap.usage && (
                     <div style={{ padding: '1.5rem', background: 'var(--clr-bg-surface)', borderRadius: '12px', border: '1px solid var(--clr-border)' }}>
-                       <h4 style={{ color: 'var(--clr-teal-dark)', fontWeight: 800, marginBottom: '1rem', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>{t('Instructions For Use')}</h4>
+                       <h4 style={{ color: 'var(--clr-teal-dark)', fontWeight: 800, marginBottom: '1rem', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>{t('prod.modal.instructions')}</h4>
                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                          {activeProduct.usage.dosage && (
+                          {ap.usage.dosage && (
                             <div>
-                               <strong style={{ fontSize: '0.85rem', color: 'var(--clr-teal-dark)' }}>{t('Dosage')}:</strong>
-                               <pre style={{ margin: '0.25rem 0 0 0', fontFamily: 'inherit', fontSize: '0.85rem', color: 'var(--clr-text-main)', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>{t(activeProduct.usage.dosage)}</pre>
+                               <strong style={{ fontSize: '0.85rem', color: 'var(--clr-teal-dark)' }}>{t('prod.modal.dosage')}:</strong>
+                               <pre style={{ margin: '0.25rem 0 0 0', fontFamily: 'inherit', fontSize: '0.85rem', color: 'var(--clr-text-main)', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>{ap.usage.dosage}</pre>
                             </div>
                           )}
-                          {activeProduct.usage.netContent && (
+                          {ap.usage.netContent && (
                             <div>
-                               <strong style={{ fontSize: '0.85rem', color: 'var(--clr-teal-dark)' }}>{t('Net Content')}:</strong>
-                               <span style={{ fontSize: '0.85rem', color: 'var(--clr-text-main)', marginLeft: '0.5rem' }}>{t(activeProduct.usage.netContent)}</span>
+                               <strong style={{ fontSize: '0.85rem', color: 'var(--clr-teal-dark)' }}>{t('prod.modal.netContent')}:</strong>
+                               <span style={{ fontSize: '0.85rem', color: 'var(--clr-text-main)', marginLeft: '0.5rem' }}>{ap.usage.netContent}</span>
                             </div>
                           )}
-                          {activeProduct.usage.caaNo && (
+                          {ap.usage.caaNo && (
                             <div>
-                               <strong style={{ fontSize: '0.85rem', color: 'var(--clr-teal-dark)' }}>{t('CAA No.')}:</strong>
-                               <span style={{ fontSize: '0.85rem', color: 'var(--clr-text-main)', marginLeft: '0.5rem' }}>{t(activeProduct.usage.caaNo)}</span>
+                               <strong style={{ fontSize: '0.85rem', color: 'var(--clr-teal-dark)' }}>{t('prod.modal.caaNo')}:</strong>
+                               <span style={{ fontSize: '0.85rem', color: 'var(--clr-text-main)', marginLeft: '0.5rem' }}>{ap.usage.caaNo}</span>
                             </div>
                           )}
                        </div>
@@ -485,7 +491,7 @@ export default function Products() {
 
               <div style={{ marginTop: '2.2rem', paddingTop: '1.2rem', borderTop: '1px solid var(--clr-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
                 <div style={{ fontSize: '0.85rem', color: 'var(--clr-text-muted)', flex: 1 }}>
-                  {t('Need bulk pricing? Translated manuals available.')}
+                  {t('prod.modal.bulkNote')}
                 </div>
                 <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                   <button 
@@ -493,7 +499,7 @@ export default function Products() {
                     style={{ padding: '0.75rem 1.5rem', borderRadius: '8px', border: '1px solid var(--clr-border)', background: isInWishlist(activeProduct.id) ? 'var(--clr-teal-light)' : '#fff', color: isInWishlist(activeProduct.id) ? 'var(--clr-teal-dark)' : 'var(--clr-text-main)', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem', transition: 'all 0.2s' }}
                   >
                     <Heart size={18} fill={isInWishlist(activeProduct.id) ? 'currentColor' : 'none'} />
-                    {isInWishlist(activeProduct.id) ? 'Saved' : 'Wishlist'}
+                    {isInWishlist(activeProduct.id) ? t('prod.saved') : t('prod.wishlist')}
                   </button>
                   <button 
                     onClick={() => {
@@ -504,13 +510,13 @@ export default function Products() {
                     style={{ padding: '0.75rem 1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
                   >
                     <ShoppingCart size={18} />
-                    {t('Add to Cart')}
+                    {t('prod.addToCart')}
                   </button>
                   <button 
                     onClick={() => setActiveProduct(null)}
                     style={{ padding: '0.75rem 1.5rem', borderRadius: '8px', border: '1px solid var(--clr-border)', background: '#fff', color: 'var(--clr-text-main)', cursor: 'pointer', fontWeight: 600 }}
                   >
-                    Close
+                    {t('prod.modal.close')}
                   </button>
                 </div>
               </div>
@@ -518,7 +524,8 @@ export default function Products() {
             </div>
           </div>
         </div>
-      )}
+        );
+      })()}
     </section>
   );
 }

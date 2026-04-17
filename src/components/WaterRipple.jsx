@@ -1,77 +1,92 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
+
+/** Imperative ripples: no React state on click → main thread stays free under abuse. */
+const RIPPLE_MS = 760;
+const MIN_GAP_COARSE = 220;
+const MIN_GAP_FINE = 140;
+const MAX_RIPPLES_COARSE = 2;
+const MAX_RIPPLES_FINE = 3;
 
 export default function WaterRipple() {
-  const [ripples, setRipples] = useState([]);
+  const rootRef = useRef(null);
 
   useEffect(() => {
-    const handleClick = (e) => {
-      const newRipple = { x: e.clientX, y: e.clientY, id: Date.now() };
-      setRipples((prev) => [...prev, newRipple]);
-      setTimeout(() => {
-        setRipples((prev) => prev.filter((r) => r.id !== newRipple.id));
-      }, 4500); 
+    const root = rootRef.current;
+    if (!root || typeof window === 'undefined') return undefined;
+
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches) {
+      return undefined;
+    }
+
+    const coarse = window.matchMedia?.('(pointer: coarse)')?.matches ?? false;
+    const minGap = coarse ? MIN_GAP_COARSE : MIN_GAP_FINE;
+    const maxRipples = coarse ? MAX_RIPPLES_COARSE : MAX_RIPPLES_FINE;
+    let lastSpawn = 0;
+
+    const prune = () => {
+      const nodes = root.querySelectorAll('.wr-dot');
+      while (nodes.length > maxRipples) {
+        nodes[0]?.remove();
+      }
     };
-    window.addEventListener('mousedown', handleClick);
-    return () => window.removeEventListener('mousedown', handleClick);
+
+    const onPointerDown = (e) => {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      const now = performance.now();
+      if (now - lastSpawn < minGap) return;
+      lastSpawn = now;
+
+      prune();
+
+      const dot = document.createElement('div');
+      dot.className = 'wr-dot';
+      dot.style.left = `${e.clientX}px`;
+      dot.style.top = `${e.clientY}px`;
+      root.appendChild(dot);
+      window.setTimeout(() => {
+        dot.remove();
+      }, RIPPLE_MS + 40);
+    };
+
+    window.addEventListener('pointerdown', onPointerDown, { passive: true });
+    return () => {
+      window.removeEventListener('pointerdown', onPointerDown);
+      root.replaceChildren();
+    };
   }, []);
 
   return (
-    <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 99999, overflow: 'hidden' }}>
-      {ripples.map((r) => (
-        <div key={r.id} style={{ position: 'absolute', left: r.x, top: r.y }}>
-          
-          {/* THE DROPLET REBOUND SPLASH */}
-          <div style={{
-            position: 'absolute', left: 0, top: 0,
-            width: '6px', height: '10px', borderRadius: '50%',
-            background: 'linear-gradient(to bottom, rgba(255,255,255,0.9), rgba(255,255,255,0.2))',
-            boxShadow: '0 5px 10px rgba(0,0,0,0.1)',
-            transformOrigin: 'bottom center',
-            animation: 'reboundSplash 1.2s cubic-bezier(0.2, 0.9, 0.4, 1) forwards'
-          }} />
-
-          {/* PRIMARY 3D POND WAVE */}
-          <div style={{
-            position: 'absolute', left: 0, top: 0,
-            borderRadius: '50%',
-            transform: 'translate(-50%, -50%)',
-            background: 'transparent',
-            animation: 'pondWave 4s cubic-bezier(0.1, 0.8, 0.2, 1) forwards',
-            boxShadow: 'inset 0 8px 12px rgba(255,255,255,0.8), inset 0 -8px 12px rgba(0, 95, 115, 0.15), 0 10px 20px rgba(0, 95, 115, 0.2), 0 -4px 8px rgba(255,255,255,0.6)',
-            backdropFilter: 'blur(3px)',
-            border: '2px solid rgba(255,255,255,0.3)'
-          }} />
-
-          {/* SECONDARY ECHO WAVE */}
-          <div style={{
-            position: 'absolute', left: 0, top: 0,
-            borderRadius: '50%',
-            transform: 'translate(-50%, -50%)',
-            background: 'transparent',
-            animation: 'echoWave 4.5s cubic-bezier(0.15, 0.85, 0.3, 1) forwards',
-            boxShadow: 'inset 0 4px 8px rgba(255,255,255,0.5), inset 0 -4px 8px rgba(0, 95, 115, 0.05), 0 5px 10px rgba(0, 95, 115, 0.1), 0 -2px 4px rgba(255,255,255,0.3)',
-            backdropFilter: 'blur(1px)',
-            border: '1px solid rgba(255,255,255,0.1)'
-          }} />
-
-        </div>
-      ))}
+    <>
+      <div
+        ref={rootRef}
+        className="water-ripple-root"
+        aria-hidden="true"
+      />
       <style>{`
-        @keyframes reboundSplash {
-          0% { transform: translate(-50%, 0) translateY(0px) scale(0.5); opacity: 1; }
-          20% { transform: translate(-50%, 0) translateY(-30px) scale(1.2); opacity: 0.9; }
-          100% { transform: translate(-50%, 0) translateY(10px) scale(2); opacity: 0; }
+        .water-ripple-root {
+          position: fixed;
+          inset: 0;
+          pointer-events: none;
+          z-index: 99999;
+          contain: strict;
+          isolation: isolate;
         }
-        @keyframes pondWave {
-          0% { width: 0px; height: 0px; opacity: 1; }
-          100% { width: 500px; height: 500px; opacity: 0; }
+        .water-ripple-root .wr-dot {
+          position: absolute;
+          width: 6px;
+          height: 6px;
+          margin: -3px 0 0 -3px;
+          border-radius: 50%;
+          border: 1px solid rgba(255, 255, 255, 0.42);
+          background: rgba(255, 255, 255, 0.1);
+          animation: wr-expand ${RIPPLE_MS}ms cubic-bezier(0.22, 0.9, 0.28, 1) forwards;
+          will-change: transform, opacity;
         }
-        @keyframes echoWave {
-          0% { width: 0px; height: 0px; opacity: 0; }
-          4% { opacity: 1; }
-          100% { width: 700px; height: 700px; opacity: 0; }
+        @keyframes wr-expand {
+          0% { transform: scale(0.4); opacity: 0.82; }
+          100% { transform: scale(32); opacity: 0; }
         }
       `}</style>
-    </div>
+    </>
   );
 }
