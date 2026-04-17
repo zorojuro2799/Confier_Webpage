@@ -26,19 +26,20 @@ export default function RnD() {
 
   return (
     <section id="rnd" className="section" style={{ 
-      background: 'var(--bg-section, #F0F4F8)',
+      background: 'linear-gradient(180deg, #eef7fa 0%, #f8fcfd 100%)',
       padding: isMobile ? '60px 20px' : '100px 40px',
       position: 'relative',
       overflow: 'hidden'
     }}>
       <style>{`
         .rnd-card {
-          background: #ffffff;
+          background: rgba(255, 255, 255, 0.88);
+          backdrop-filter: blur(8px);
           padding: 2rem;
-          border-radius: 16px;
+          border-radius: 22px;
           text-align: left;
-          border: 1px solid rgba(168, 213, 186, 0.4);
-          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          border: 1px solid rgba(168, 213, 186, 0.45);
+          transition: transform 0.25s ease, box-shadow 0.25s ease;
           position: relative;
           z-index: 1;
           display: flex;
@@ -46,8 +47,8 @@ export default function RnD() {
           height: 100%;
         }
         .rnd-card:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 15px 30px rgba(0, 91, 150, 0.08);
+          transform: translateY(-4px);
+          box-shadow: 0 16px 30px rgba(0, 91, 150, 0.12);
         }
         .rnd-icon-wrapper {
           width: 60px;
@@ -67,9 +68,9 @@ export default function RnD() {
         }
         
         .cert-placeholder {
-          background: rgba(255, 255, 255, 0.6);
+          background: rgba(255, 255, 255, 0.86);
           border: 1px dashed rgba(46, 139, 87, 0.3);
-          border-radius: 16px;
+          border-radius: 22px;
           padding: 3rem;
           text-align: center;
           margin-top: 4rem;

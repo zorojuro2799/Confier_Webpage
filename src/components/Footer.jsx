@@ -3,8 +3,9 @@ import { useLanguage } from '../LanguageContext.jsx';
 
 export default function Footer() {
   const { t } = useLanguage();
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   return (
-    <footer style={{ background: 'var(--clr-teal-dark)', color: '#fff', paddingTop: '4rem', paddingBottom: '6rem' }}>
+    <footer style={{ background: 'linear-gradient(180deg, var(--clr-teal-dark) 0%, #034b5b 100%)', color: '#fff', paddingTop: '4rem', paddingBottom: '6rem' }}>
       <div className="container">
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3rem', justifyContent: 'space-between' }}>
           <div style={{ maxWidth: '340px' }}>
@@ -16,7 +17,7 @@ export default function Footer() {
             </p>
           </div>
           
-          <div style={{ display: 'flex', gap: '4rem' }}>
+          <div style={{ display: 'flex', gap: isMobile ? '1.6rem' : '4rem', flexWrap: isMobile ? 'wrap' : 'nowrap' }}>
             <div>
               <h4 style={{ fontWeight: 600, marginBottom: '1rem', color: '#fff' }}>{t('footer.company')}</h4>
               <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.9rem' }}>
@@ -35,9 +36,9 @@ export default function Footer() {
           </div>
         </div>
         
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', marginTop: '3rem', paddingTop: '2rem', display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)' }}>
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', marginTop: '3rem', paddingTop: '2rem', display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? '0.85rem' : 0, justifyContent: 'space-between', fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)' }}>
           <p>&copy; {new Date().getFullYear()} Confier International Pvt. Ltd.</p>
-          <div style={{ display: 'flex', gap: '1rem' }}>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
             <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>{t('footer.privacy')}</a>
             <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>{t('footer.terms')}</a>
             <button 

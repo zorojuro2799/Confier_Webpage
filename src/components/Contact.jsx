@@ -4,10 +4,11 @@ import { useLanguage } from '../LanguageContext.jsx';
 
 export default function Contact() {
   const { t } = useLanguage();
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   return (
-    <section id="contact" className="section" style={{ background: '#fff' }}>
+    <section id="contact" className="section" style={{ background: 'linear-gradient(180deg, #ffffff 0%, #f4fafb 100%)' }}>
       <div className="container">
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '4rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: isMobile ? '2rem' : '4rem' }}>
           
           <div>
             <span className="section-tag">{t('nav.contact')}</span>
@@ -52,14 +53,14 @@ export default function Contact() {
             </div>
           </div>
 
-          <div style={{ background: 'var(--clr-bg-primary)', padding: '3rem', borderRadius: 'var(--radius-lg)' }}>
+          <div style={{ background: 'rgba(255,255,255,0.9)', padding: isMobile ? '1.3rem' : '2.4rem', borderRadius: '24px', border: '1px solid var(--clr-border)', boxShadow: 'var(--shadow-md)' }}>
             <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', marginBottom: '1.5rem', color: 'var(--clr-text-main)' }}>
               {t('contact.send')}
             </h3>
             <form style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }} onSubmit={(e) => { e.preventDefault(); alert("Thanks for reaching out! We will contact you soon."); }}>
-              <input type="text" placeholder={t('contact.name')} required style={{ width: '100%', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--clr-border)', outline: 'none', background: '#fff' }} />
-              <input type="email" placeholder={t('contact.email_placeholder')} required style={{ width: '100%', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--clr-border)', outline: 'none', background: '#fff' }} />
-              <textarea placeholder={t('contact.help')} rows="4" required style={{ width: '100%', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--clr-border)', outline: 'none', background: '#fff', resize: 'vertical' }}></textarea>
+              <input type="text" placeholder={t('contact.name')} required style={{ width: '100%', padding: '0.95rem 1rem', borderRadius: '14px', border: '1px solid var(--clr-border)', outline: 'none', background: '#fff' }} />
+              <input type="email" placeholder={t('contact.email_placeholder')} required style={{ width: '100%', padding: '0.95rem 1rem', borderRadius: '14px', border: '1px solid var(--clr-border)', outline: 'none', background: '#fff' }} />
+              <textarea placeholder={t('contact.help')} rows="4" required style={{ width: '100%', padding: '0.95rem 1rem', borderRadius: '14px', border: '1px solid var(--clr-border)', outline: 'none', background: '#fff', resize: 'vertical' }}></textarea>
               <button className="btn-primary" type="submit" style={{ width: '100%', marginTop: '0.5rem' }}>
                 <Send size={18} /> {t('contact.submit')}
               </button>

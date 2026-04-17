@@ -10,7 +10,7 @@ export default function AccountSection() {
   const { cartItems, wishlistItems } = useCart();
 
   return (
-    <section id="account" style={{ padding: '5rem 0', background: 'var(--clr-bg-primary)' }}>
+    <section id="account" style={{ padding: '5rem 0', background: 'linear-gradient(180deg, #ecf7fa 0%, #f8fcfd 100%)' }}>
       <div className="container">
         <div style={{ maxWidth: '860px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
@@ -26,9 +26,9 @@ export default function AccountSection() {
           </div>
 
           <div style={{
-            background: '#fff',
+            background: 'rgba(255,255,255,0.92)',
             border: '1px solid var(--clr-border)',
-            borderRadius: '20px',
+            borderRadius: '24px',
             boxShadow: 'var(--shadow-md)',
             padding: '2rem'
           }}>
@@ -42,21 +42,21 @@ export default function AccountSection() {
                   gap: '1rem',
                   marginBottom: '1.5rem'
                 }}>
-                  <div style={{ padding: '1rem', borderRadius: '14px', background: 'var(--clr-bg-surface)' }}>
+                  <div style={{ padding: '1rem', borderRadius: '16px', background: 'var(--clr-bg-surface)' }}>
                     <div style={{ color: 'var(--clr-text-muted)', fontSize: '0.85rem', marginBottom: '0.35rem' }}>{t('account.emailLabel')}</div>
                     <div style={{ color: 'var(--clr-text-main)', fontWeight: 700, wordBreak: 'break-word' }}>{user.email}</div>
                   </div>
-                  <div style={{ padding: '1rem', borderRadius: '14px', background: 'var(--clr-bg-surface)' }}>
+                  <div style={{ padding: '1rem', borderRadius: '16px', background: 'var(--clr-bg-surface)' }}>
                     <div style={{ color: 'var(--clr-text-muted)', fontSize: '0.85rem', marginBottom: '0.35rem' }}>{t('account.roleLabel')}</div>
                     <div style={{ color: 'var(--clr-text-main)', fontWeight: 700 }}>
                       {userRole === 'admin' ? t('account.roleAdmin') : t('account.roleUser')}
                     </div>
                   </div>
-                  <div style={{ padding: '1rem', borderRadius: '14px', background: 'var(--clr-bg-surface)' }}>
+                  <div style={{ padding: '1rem', borderRadius: '16px', background: 'var(--clr-bg-surface)' }}>
                     <div style={{ color: 'var(--clr-text-muted)', fontSize: '0.85rem', marginBottom: '0.35rem' }}>{t('account.wishlist')}</div>
                     <div style={{ color: 'var(--clr-text-main)', fontWeight: 700 }}>{wishlistItems.length}</div>
                   </div>
-                  <div style={{ padding: '1rem', borderRadius: '14px', background: 'var(--clr-bg-surface)' }}>
+                  <div style={{ padding: '1rem', borderRadius: '16px', background: 'var(--clr-bg-surface)' }}>
                     <div style={{ color: 'var(--clr-text-muted)', fontSize: '0.85rem', marginBottom: '0.35rem' }}>{t('account.cart')}</div>
                     <div style={{ color: 'var(--clr-text-main)', fontWeight: 700 }}>{cartItems.length}</div>
                   </div>

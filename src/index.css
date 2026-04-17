@@ -17,6 +17,7 @@
   --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
   --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
   --shadow-lg: 0 10px 25px -5px rgba(0, 95, 115, 0.1);
+  --shadow-xl: 0 24px 60px -28px rgba(0, 95, 115, 0.5);
   --shadow-hover: 0 20px 40px -10px rgba(10, 147, 150, 0.25);
   
   --font-sans: 'DM Sans', sans-serif;
@@ -25,6 +26,7 @@
   
   --radius-md: 14px;
   --radius-lg: 24px;
+  --radius-xl: 30px;
   --radius-full: 9999px;
 }
 
@@ -41,26 +43,31 @@ html {
 
 body {
   font-family: var(--font-sans);
-  background: linear-gradient(120deg, var(--clr-bg-primary) 0%, var(--clr-bg-surface) 50%, #e0eff1 100%);
-  background-size: 200% 200%;
-  animation: wateryShimmer 15s ease infinite;
+  background: linear-gradient(160deg, var(--clr-bg-primary) 0%, var(--clr-bg-surface) 55%, #e3f2f4 100%);
   color: var(--clr-text-main);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  line-height: 1.45;
 }
 
-@keyframes wateryShimmer {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+button, input, textarea {
+  font-family: inherit;
+}
+
+a, button {
+  transition: all 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+main > section {
+  border-top: 1px solid rgba(0, 95, 115, 0.08);
 }
 
 /* --- UTILITIES --- */
 .container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1180px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 1.4rem;
 }
 
 .section {
@@ -104,17 +111,18 @@ body {
   font-weight: 600;
   font-size: 1rem;
   padding: 1rem 2.25rem;
-  border-radius: var(--radius-md);
+  border-radius: 14px;
   border: none;
   cursor: pointer;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s;
+  box-shadow: 0 10px 24px rgba(231, 111, 81, 0.25);
+  transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 220ms ease;
   z-index: 1;
 }
 
 @media (hover: hover) {
   .btn-primary:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 24px rgba(231, 111, 81, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 16px 28px rgba(231, 111, 81, 0.32);
   }
 }
 
@@ -156,16 +164,18 @@ body {
 
 /* --- CARDS & INTERACTIONS --- */
 .card-hover {
-  background: var(--clr-bg-surface);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--clr-border);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgba(255, 255, 255, 0.84);
+  backdrop-filter: blur(8px);
+  border-radius: 22px;
+  border: 1px solid rgba(208, 231, 232, 0.85);
+  box-shadow: var(--shadow-sm);
+  transition: all 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
   overflow: hidden;
 }
 
 .card-hover:hover {
-  transform: translateY(-8px);
-  box-shadow: var(--shadow-hover);
+  transform: translateY(-4px);
+  box-shadow: 0 14px 34px rgba(10, 147, 150, 0.18);
   border-color: rgba(10, 147, 150, 0.3);
 }
 
@@ -207,7 +217,7 @@ body {
   
   .container {
     width: 100% !important;
-    padding: 0 15px !important;
+    padding: 0 12px !important;
   }
 
   /* Fix 'Our Story' and Section Headers */

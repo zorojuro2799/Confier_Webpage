@@ -8,7 +8,7 @@ export default function AuthModal({ isOpen, onClose }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [error, setError] = useState('');
+  const [feedback, setFeedback] = useState({ type: '', text: '' });
   const [loading, setLoading] = useState(false);
   
   const { logIn, signUp } = useAuth();
@@ -17,14 +17,19 @@ export default function AuthModal({ isOpen, onClose }) {
   useEffect(() => {
     if (!isOpen) return;
     // Always open in a predictable state so the dialog feels reliable.
-    setError('');
+    setFeedback({ type: '', text: '' });
     setLoading(false);
     setIsLogin(true);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prevOverflow;
+    };
   }, [isOpen]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setFeedback({ type: '', text: '' });
     setLoading(true);
 
     try {
@@ -36,12 +41,12 @@ export default function AuthModal({ isOpen, onClose }) {
         setFullName('');
       } else {
         if (!fullName.trim()) {
-          setError(t('auth.requiredName'));
+          setFeedback({ type: 'error', text: t('auth.requiredName') });
           setLoading(false);
           return;
         }
         await signUp(email, password, fullName);
-        setError(t('auth.checkEmail'));
+        setFeedback({ type: 'success', text: t('auth.checkEmail') });
         setTimeout(() => {
           onClose();
           setEmail('');
@@ -51,7 +56,7 @@ export default function AuthModal({ isOpen, onClose }) {
         }, 2000);
       }
     } catch (err) {
-      setError(err.message || 'An error occurred');
+      setFeedback({ type: 'error', text: err.message || 'An error occurred' });
     } finally {
       setLoading(false);
     }
@@ -62,13 +67,15 @@ export default function AuthModal({ isOpen, onClose }) {
   return (
     <div style={{
       position: 'fixed', inset: 0, zIndex: 10000, background: 'rgba(0,0,0,0.6)',
-      backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: '1rem'
+      backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
+      padding: 'max(1rem, env(safe-area-inset-top)) 1rem 1rem'
     }} onClick={onClose}>
       
       <div style={{
-        background: '#fff', width: '100%', maxWidth: '400px', borderRadius: 'var(--radius-lg)',
-        padding: 'clamp(1.5rem, 5vw, 2rem)', boxShadow: 'var(--shadow-lg)', position: 'relative'
+        background: 'rgba(255,255,255,0.95)', width: 'min(100%, 430px)', borderRadius: '24px',
+        padding: 'clamp(1.25rem, 4vw, 2rem)', boxShadow: 'var(--shadow-xl)',
+        position: 'relative', maxHeight: 'min(92dvh, 760px)', overflowY: 'auto',
+        border: '1px solid rgba(255,255,255,0.65)', marginTop: 'max(4vh, 0.5rem)'
       }} onClick={e => e.stopPropagation()}>
         
         <button
@@ -94,16 +101,16 @@ export default function AuthModal({ isOpen, onClose }) {
           {isLogin ? t('auth.signInToAccount') : t('auth.joinConfier')}
         </p>
 
-        {error && (
+        {feedback.text && (
           <div style={{
-            background: error.includes('Check your') ? '#d4edda' : '#f8d7da',
-            border: error.includes('Check your') ? '1px solid #c3e6cb' : '1px solid #f5c6cb',
-            color: error.includes('Check your') ? '#155724' : '#721c24',
+            background: feedback.type === 'success' ? '#d4edda' : '#f8d7da',
+            border: feedback.type === 'success' ? '1px solid #c3e6cb' : '1px solid #f5c6cb',
+            color: feedback.type === 'success' ? '#155724' : '#721c24',
             padding: '0.75rem 1rem', borderRadius: '8px', marginBottom: '1.5rem',
             display: 'flex', gap: '0.5rem', alignItems: 'flex-start'
           }}>
             <AlertCircle size={18} style={{ flexShrink: 0, marginTop: '2px' }} />
-            <span style={{ fontSize: '0.9rem' }}>{error}</span>
+            <span style={{ fontSize: '0.9rem' }}>{feedback.text}</span>
           </div>
         )}
 
@@ -223,7 +230,7 @@ export default function AuthModal({ isOpen, onClose }) {
           <button
             onClick={() => {
               setIsLogin(!isLogin);
-              setError('');
+              setFeedback({ type: '', text: '' });
               setEmail('');
               setPassword('');
               setFullName('');

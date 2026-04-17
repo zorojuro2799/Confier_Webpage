@@ -14,16 +14,16 @@ export default function About() {
 
   return (
     <section id="about" style={{ 
-      background: 'var(--white, #FAFAFA)', 
+      background: 'linear-gradient(180deg, #ffffff 0%, #f7fbfc 100%)', 
       padding: isMobile ? '80px 20px' : '120px 40px',
       overflow: 'hidden'
     }}>
       <style>{`
         .about-image-wrapper {
           position: relative;
-          border-radius: 24px;
+          border-radius: 28px;
           overflow: hidden;
-          box-shadow: 0 30px 60px rgba(0, 91, 150, 0.15);
+          box-shadow: 0 20px 44px rgba(0, 91, 150, 0.14);
         }
         .about-image-wrapper::after {
           content: '';
@@ -45,18 +45,19 @@ export default function About() {
         }
         
         .advantage-card {
-          background: var(--bg-section, #F0F4F8);
+          background: rgba(255, 255, 255, 0.82);
+          backdrop-filter: blur(6px);
           padding: 2.5rem 2rem;
-          border-radius: 20px;
-          border: 1px solid rgba(0, 91, 150, 0.05);
-          transition: all 0.4s ease;
+          border-radius: 22px;
+          border: 1px solid rgba(0, 91, 150, 0.08);
+          transition: all 0.25s ease;
           display: flex;
           flex-direction: column;
         }
         .advantage-card:hover {
           background: #ffffff;
-          transform: translateY(-8px);
-          box-shadow: 0 20px 40px rgba(0, 91, 150, 0.08);
+          transform: translateY(-4px);
+          box-shadow: 0 14px 32px rgba(0, 91, 150, 0.12);
           border-color: rgba(46, 139, 87, 0.2);
         }
         .advantage-icon {
@@ -173,8 +174,8 @@ export default function About() {
           background: 'white',
           borderRadius: '32px',
           padding: isMobile ? '3rem 1.5rem' : '5rem',
-          boxShadow: '0 20px 60px rgba(0,0,0,0.03)',
-          border: '1px solid rgba(0,0,0,0.04)'
+          boxShadow: '0 14px 36px rgba(0,0,0,0.06)',
+          border: '1px solid rgba(0,0,0,0.06)'
         }}>
           <div style={{ textAlign: 'center', marginBottom: isMobile ? '3rem' : '4rem' }}>
              <h3 style={{ 

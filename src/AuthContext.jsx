@@ -2,6 +2,16 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import supabase from './supabaseClient';
 
 const AuthContext = createContext();
+const normalizeAuthError = (error) => {
+  const msg = String(error?.message || '').toLowerCase();
+  if (!msg) return 'Authentication failed. Please try again.';
+  if (msg.includes('invalid login credentials')) return 'Incorrect email or password.';
+  if (msg.includes('email not confirmed')) return 'Please verify your email first, then sign in.';
+  if (msg.includes('user already registered')) return 'This email is already registered. Please sign in.';
+  if (msg.includes('password')) return 'Password must be at least 6 characters.';
+  if (msg.includes('network')) return 'Network issue detected. Please check your internet and retry.';
+  return error?.message || 'Authentication failed. Please try again.';
+};
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -118,7 +128,7 @@ export const AuthProvider = ({ children }) => {
       return data;
     } catch (error) {
       console.error('Sign up error:', error);
-      throw error;
+      throw new Error(normalizeAuthError(error));
     }
   };
 
@@ -133,7 +143,7 @@ export const AuthProvider = ({ children }) => {
       return data;
     } catch (error) {
       console.error('Login error:', error);
-      throw error;
+      throw new Error(normalizeAuthError(error));
     }
   };
 

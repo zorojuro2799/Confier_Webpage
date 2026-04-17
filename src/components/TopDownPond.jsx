@@ -81,6 +81,7 @@ export default function TopDownPond() {
         this.swimCycle = Math.random() * Math.PI * 2;
         this.targetAngle = this.angle;
         this.calmDrift = 0;
+        this.escapeEase = 0;
         
         // Assign pattern type (7-8 variants)
         this.patternType = Math.floor(Math.random() * 8);
@@ -105,7 +106,7 @@ export default function TopDownPond() {
       update() {
         this.swimCycle += 0.08 * (this.baseSpeed * this.currentSpeedMultiplier);
 
-        if (Math.random() < 0.015) {
+        if (Math.random() < 0.012) {
           this.targetAngle += (Math.random() - 0.5) * 1.0;
         }
 
@@ -118,27 +119,32 @@ export default function TopDownPond() {
         if (distance < mouse.radius) {
           const force = (mouse.radius - distance) / mouse.radius;
           const fleeAngle = Math.atan2(dy, dx) + Math.PI;
-          
-          this.targetAngle = fleeAngle;
-          // Stronger immediate response near touch/mouse with smooth easing.
-          targetSpeedMultiplier = 1.25 + (force * 12.5);
+
+          // Blend toward flee angle to avoid harsh twitches near the cursor edge.
+          const fleeDiff = Math.atan2(Math.sin(fleeAngle - this.targetAngle), Math.cos(fleeAngle - this.targetAngle));
+          this.targetAngle += fleeDiff * (0.3 + force * 0.45);
+
+          // Fast escape response while staying smooth.
+          targetSpeedMultiplier = 1.35 + (force * 13.5);
           this.swimCycle += 0.34 * force;
           this.calmDrift = 0;
+          this.escapeEase = Math.min(1, this.escapeEase + 0.22);
         } else {
           // Regain calm movement in a few seconds instead of feeling empty.
           this.calmDrift = Math.min(1, this.calmDrift + 0.012);
-          targetSpeedMultiplier = 1 + (0.45 * (1 - this.calmDrift));
+          targetSpeedMultiplier = 1 + (0.38 * (1 - this.calmDrift));
+          this.escapeEase = Math.max(0, this.escapeEase - 0.045);
         }
 
-        this.currentSpeedMultiplier += (targetSpeedMultiplier - this.currentSpeedMultiplier) * 0.12;
+        this.currentSpeedMultiplier += (targetSpeedMultiplier - this.currentSpeedMultiplier) * (0.08 + this.escapeEase * 0.09);
 
         const diff = this.targetAngle - this.angle;
-        this.angle += Math.atan2(Math.sin(diff), Math.cos(diff)) * 0.11;
+        this.angle += Math.atan2(Math.sin(diff), Math.cos(diff)) * (0.085 + this.escapeEase * 0.065);
 
         const targetVx = Math.cos(this.angle) * this.baseSpeed * this.currentSpeedMultiplier;
         const targetVy = Math.sin(this.angle) * this.baseSpeed * this.currentSpeedMultiplier;
-        this.speedX += (targetVx - this.speedX) * 0.29;
-        this.speedY += (targetVy - this.speedY) * 0.29;
+        this.speedX += (targetVx - this.speedX) * (0.22 + this.escapeEase * 0.12);
+        this.speedY += (targetVy - this.speedY) * (0.22 + this.escapeEase * 0.12);
 
         this.x += this.speedX;
         this.y += this.speedY;
@@ -409,10 +415,25 @@ export default function TopDownPond() {
       }
     }
 
-    const shrimpCount = isMobile ? 16 : 30;
+    const shrimpCount = isMobile ? 20 : 36;
     const shrimpFlock = [];
-    for (let i = 0; i < shrimpCount; i++) { 
-      shrimpFlock.push(new Shrimp());
+    const minSpacing = isMobile ? 48 : 66;
+    for (let i = 0; i < shrimpCount; i++) {
+      const shrimp = new Shrimp();
+      let attempts = 0;
+      while (
+        attempts < 60 &&
+        shrimpFlock.some((other) => {
+          const sx = other.x - shrimp.x;
+          const sy = other.y - shrimp.y;
+          return Math.sqrt(sx * sx + sy * sy) < minSpacing;
+        })
+      ) {
+        shrimp.x = Math.random() * width;
+        shrimp.y = Math.random() * height;
+        attempts += 1;
+      }
+      shrimpFlock.push(shrimp);
     }
 
     // Particle system for realistic pond effects

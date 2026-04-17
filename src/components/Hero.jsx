@@ -11,7 +11,7 @@ export default function Hero() {
       display: 'flex', alignItems: 'center', 
       position: 'relative', overflow: 'hidden',
       background: '#000', // Canvas holds the real color
-      paddingTop: '80px'
+      paddingTop: '84px'
     }}>
       
       {/* Interactive Physics Canvas Background - UNTOUCHED as requested */}
@@ -35,9 +35,9 @@ export default function Hero() {
               fontSize: 'clamp(2.8rem, 6vw, 4.5rem)', 
               fontWeight: 700, 
               lineHeight: 1.15, 
-              marginBottom: '1.5rem', 
+              marginBottom: '1.2rem', 
               letterSpacing: '-0.02em',
-              textShadow: '0 10px 30px rgba(0,0,0,0.5)',
+              textShadow: '0 12px 28px rgba(0,0,0,0.42)',
               color: '#FAFAFA'
             }}>
               {t('hero.title1')}<br/>
@@ -48,13 +48,13 @@ export default function Hero() {
             </h1>
 
             <p style={{ 
-              fontFamily: "'Inter', sans-serif",
+              fontFamily: "var(--font-sans)",
               fontSize: 'clamp(1rem, 2vw, 1.25rem)', 
               maxWidth: '650px', 
-              margin: '0 auto 3rem', 
-              lineHeight: 1.8, 
+              margin: '0 auto 2.2rem', 
+              lineHeight: 1.7, 
               color: 'rgba(255,255,255,0.9)',
-              fontWeight: 400,
+              fontWeight: 500,
               textShadow: '0 2px 10px rgba(0,0,0,0.5)'
             }}>
               {t('hero.subtitle')}
@@ -69,14 +69,14 @@ export default function Hero() {
               <button 
                 className="btn-primary" 
                 style={{
-                  fontFamily: "'Montserrat', sans-serif",
+                  fontFamily: "var(--font-sans)",
                   fontWeight: 600,
-                  letterSpacing: '0.5px',
-                  padding: '1.2rem 2.5rem',
+                  letterSpacing: '0.2px',
+                  padding: '1rem 2.1rem',
                   fontSize: '1rem',
-                  boxShadow: '0 10px 20px rgba(0,0,0,0.2)',
+                  boxShadow: '0 14px 24px rgba(0,0,0,0.2)',
                   border: 'none',
-                  borderRadius: 'var(--radius-md, 8px)',
+                  borderRadius: '14px',
                   cursor: 'pointer',
                   transition: 'all 0.3s'
                 }}
@@ -88,14 +88,14 @@ export default function Hero() {
               </button>
               <button 
                 style={{
-                  fontFamily: "'Montserrat', sans-serif",
+                  fontFamily: "var(--font-sans)",
                   background: 'rgba(255,255,255,0.1)', 
                   color: '#fff', 
                   border: '1px solid rgba(255,255,255,0.4)',
-                  padding: '1.2rem 2.5rem', 
-                  borderRadius: 'var(--radius-md, 8px)', 
+                  padding: '1rem 2.1rem', 
+                  borderRadius: '14px', 
                   fontWeight: 600, 
-                  letterSpacing: '0.5px',
+                  letterSpacing: '0.2px',
                   fontSize: '1rem',
                   cursor: 'pointer', 
                   backdropFilter: 'blur(12px)', 

@@ -15,14 +15,14 @@ export default function Stories() {
   const { t } = useLanguage();
 
   return (
-    <section id="stories" className="section" style={{ background: '#f8fafc' }}>
+    <section id="stories" className="section" style={{ background: 'linear-gradient(180deg, #f8fafc 0%, #eef8fa 100%)' }}>
       <div className="container" style={{ maxWidth: '1200px' }}>
         
         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
           <span className="section-tag" style={{ background: 'rgba(231,111,81,0.1)', color: 'var(--clr-orange)' }}>
             {t('nav.results')}
           </span>
-          <h2 className="text-title" style={{ marginTop: '1rem', color: '#000000' }}>
+          <h2 className="text-title" style={{ marginTop: '1rem', color: 'var(--clr-teal-dark)' }}>
             {t('nav.results')}
           </h2>
           <p style={{ color: '#0ea5e9', fontSize: '1.4rem', fontWeight: 600, marginTop: '1rem', fontStyle: 'italic', fontFamily: 'var(--font-serif)' }}>
@@ -35,7 +35,7 @@ export default function Stories() {
             display: 'grid', 
             gridTemplateColumns: 'repeat(2, 1fr)',
             gridAutoRows: 'minmax(180px, auto)',
-            gap: '1rem',
+            gap: '1rem'
           }}
           className="stories-collage"
         >
@@ -70,9 +70,10 @@ export default function Stories() {
               style={{ 
                 position: 'relative', 
                 background: '#000', 
-                borderRadius: '16px', 
+                borderRadius: '20px', 
                 overflow: 'hidden',
-                boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
+                border: '1px solid rgba(255,255,255,0.25)',
+                boxShadow: '0 16px 34px rgba(0,0,0,0.12)',
                 minHeight: '180px'
               }}
             >
@@ -90,15 +91,15 @@ export default function Stories() {
         </div>
 
         {/* Clean Discover More CTA */}
-        <div style={{ marginTop: '4rem', display: 'flex', justifyContent: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
+        <div style={{ marginTop: '3.4rem', display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
           <a 
             href="https://youtube.com/@confierintl" 
             target="_blank" 
             rel="noopener noreferrer"
             className="btn btn-secondary"
             style={{ 
-              display: 'inline-flex', padding: '1rem 2.5rem', background: '#fff', 
-              color: 'var(--clr-ocean)', border: '2px solid var(--clr-border)', borderRadius: '50px', 
+              display: 'inline-flex', padding: '0.9rem 1.8rem', background: '#fff', 
+              color: 'var(--clr-ocean)', border: '1px solid var(--clr-border)', borderRadius: '999px', 
               textDecoration: 'none', fontWeight: 'bold', alignItems: 'center', gap: '10px',
               transition: 'all 0.2s', boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
             }}
@@ -113,10 +114,10 @@ export default function Stories() {
             rel="noopener noreferrer"
             className="btn btn-primary"
             style={{ 
-              display: 'inline-flex', padding: '1rem 2.5rem', background: '#cc0000', // YouTube red
-              color: '#fff', borderRadius: '50px', textDecoration: 'none', fontWeight: 'bold',
+              display: 'inline-flex', padding: '0.9rem 1.8rem', background: '#cc0000', // YouTube red
+              color: '#fff', borderRadius: '999px', textDecoration: 'none', fontWeight: 'bold',
               alignItems: 'center', gap: '10px', boxShadow: '0 8px 24px rgba(204,0,0,0.3)',
-              border: '2px solid #cc0000'
+              border: '1px solid #cc0000'
             }}
           >
             <ArrowUpRight size={20} color="#fff" />

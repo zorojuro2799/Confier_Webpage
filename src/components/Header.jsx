@@ -34,11 +34,11 @@ export default function Header() {
     <>
       <nav style={{
         position: 'fixed', top: 0, left: 0, right: 0,
-        background: scrolled ? 'rgba(255,255,255,0.98)' : 'rgba(255,255,255,0.9)',
-        backdropFilter: 'blur(12px)', zIndex: 50,
+        background: scrolled ? 'rgba(255,255,255,0.97)' : 'rgba(255,255,255,0.88)',
+        backdropFilter: 'blur(16px)', zIndex: 50,
         borderBottom: scrolled ? '1px solid var(--clr-border)' : '1px solid transparent',
         transition: 'all 0.3s ease',
-        padding: '0.8rem 0'
+        padding: '0.72rem 0'
     }}>
       <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         
@@ -135,7 +135,7 @@ export default function Header() {
                 onClick={() => setAuthModalOpen(true)}
                 style={{
                   background: 'var(--clr-orange-warm)', border: 'none', color: '#fff',
-                  padding: '0.75rem 1.5rem', borderRadius: '8px', cursor: 'pointer',
+                  padding: '0.75rem 1.4rem', borderRadius: '12px', cursor: 'pointer',
                   fontWeight: 600, transition: 'all 0.2s'
                 }}
                 onMouseOver={(e) => e.target.style.background = 'var(--clr-orange)'}
@@ -154,7 +154,7 @@ export default function Header() {
             style={{ 
               background: cartItems.length > 0 ? 'var(--clr-orange-warm)' : 'var(--clr-teal-light)',
               border: 'none', color: cartItems.length > 0 ? '#fff' : 'var(--clr-teal-dark)',
-              borderRadius: '8px', padding: '0.5rem 1rem',
+              borderRadius: '12px', padding: '0.52rem 0.9rem',
               cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem',
               position: 'relative'
             }}
@@ -184,7 +184,8 @@ export default function Header() {
       {mobileOpen && (
         <div style={{
           position: 'absolute', top: '100%', left: 0, right: 0, 
-          background: '#fff', borderBottom: '1px solid var(--clr-border)',
+          background: 'rgba(255,255,255,0.96)', borderBottom: '1px solid var(--clr-border)',
+          backdropFilter: 'blur(10px)',
           padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem',
           boxShadow: 'var(--shadow-md)'
         }}>

@@ -5,6 +5,7 @@ import { useLanguage } from '../LanguageContext.jsx';
 export default function LanguagePillBar() {
   const { lang: activeLang, setLang: setActiveLang } = useLanguage();
   const [showAll, setShowAll] = useState(false);
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   const primaryLanguages = [
     { id: 'en', label: 'English' },
@@ -38,19 +39,19 @@ export default function LanguagePillBar() {
   return (
     <div style={{
       position: 'fixed',
-      bottom: '16px',
+      bottom: isMobile ? '12px' : '16px',
       left: '50%',
       transform: 'translateX(-50%)',
       zIndex: 100,
       background: 'rgba(255, 255, 255, 0.95)',
       backdropFilter: 'blur(16px)',
       boxShadow: 'var(--shadow-lg)',
-      borderRadius: 'var(--radius-full)',
+      borderRadius: '999px',
       display: 'flex',
       alignItems: 'center',
-      padding: '6px 8px',
+      padding: isMobile ? '5px 6px' : '6px 8px',
       border: '1px solid var(--clr-border)',
-      maxWidth: '90vw',
+      maxWidth: 'min(94vw, 980px)',
       overflowX: 'auto',
       whiteSpace: 'nowrap',
       transition: 'all 0.3s ease'
@@ -84,9 +85,9 @@ export default function LanguagePillBar() {
             background: activeLang === lang.id ? 'var(--clr-teal)' : 'transparent',
             color: activeLang === lang.id ? '#fff' : 'var(--clr-text-muted)',
             border: 'none',
-            borderRadius: 'var(--radius-full)',
-            padding: '8px 16px',
-            fontSize: '0.9rem',
+            borderRadius: '999px',
+            padding: isMobile ? '8px 12px' : '8px 16px',
+            fontSize: isMobile ? '0.82rem' : '0.9rem',
             fontWeight: activeLang === lang.id ? 700 : 500,
             cursor: 'pointer',
             transition: 'all 0.2s',

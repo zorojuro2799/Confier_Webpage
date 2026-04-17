@@ -117,7 +117,7 @@ export default function Events() {
   };
 
   return (
-    <section id="events" style={{ background: 'var(--bg-section, #F0F4F8)', padding: isMobile ? '60px 10px' : '100px 20px', minHeight: '100vh' }}>
+    <section id="events" style={{ background: 'linear-gradient(180deg, #f0f8fa 0%, #f9fcfd 100%)', padding: isMobile ? '60px 10px' : '100px 20px', minHeight: '100vh' }}>
       <div className="container" style={{ maxWidth: '1200px', margin: '0 auto' }}>
         
         {/* Section Header & Admin Toggle */}
@@ -151,7 +151,7 @@ export default function Events() {
             style={{
               marginTop: '1rem',
               display: 'flex', alignItems: 'center', gap: '8px',
-              padding: '8px 16px', borderRadius: '20px',
+              padding: '8px 16px', borderRadius: '999px',
               background: isAdmin ? '#FEF2F2' : '#FFF',
               border: isAdmin ? '1px solid #FCA5A5' : '1px solid #E5E7EB',
               color: isAdmin ? '#DC2626' : '#6B7280',
@@ -166,7 +166,7 @@ export default function Events() {
 
         {/* Admin Create Post Form */}
         {isAdmin && (
-          <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #E5E7EB', overflow: 'hidden', maxWidth: '650px', margin: '0 auto 2rem' }}>
+          <div style={{ background: 'rgba(255,255,255,0.93)', borderRadius: '20px', border: '1px solid #E5E7EB', overflow: 'hidden', maxWidth: '650px', margin: '0 auto 2rem', boxShadow: 'var(--shadow-md)' }}>
             <div 
               onClick={() => setShowAddPost(!showAddPost)}
               style={{ padding: '1rem 1.5rem', background: '#F9FAFB', borderBottom: '1px solid #E5E7EB', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
@@ -192,7 +192,7 @@ export default function Events() {
                         reader.readAsDataURL(file);
                       }
                     }}
-                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '0.9rem' }}
+                    style={{ width: '100%', padding: '10px', borderRadius: '12px', border: '1px solid #D1D5DB', fontSize: '0.9rem' }}
                     required
                   />
                   {newPost.imageFile && (
@@ -204,7 +204,7 @@ export default function Events() {
                   <input 
                     type="text" placeholder="e.g., Kakinada Farm" 
                     value={newPost.location} onChange={e => setNewPost({...newPost, location: e.target.value})}
-                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '0.9rem' }}
+                    style={{ width: '100%', padding: '10px', borderRadius: '12px', border: '1px solid #D1D5DB', fontSize: '0.9rem' }}
                   />
                 </div>
                 <div>
@@ -212,10 +212,10 @@ export default function Events() {
                   <textarea 
                     rows="3" placeholder="Write a caption..." required
                     value={newPost.caption} onChange={e => setNewPost({...newPost, caption: e.target.value})}
-                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '0.9rem', resize: 'vertical' }}
+                    style={{ width: '100%', padding: '10px', borderRadius: '12px', border: '1px solid #D1D5DB', fontSize: '0.9rem', resize: 'vertical' }}
                   />
                 </div>
-                <button type="submit" style={{ background: 'var(--teal-dark, #005B96)', color: 'white', padding: '12px', borderRadius: '8px', border: 'none', fontWeight: 600, cursor: 'pointer' }}>
+                <button type="submit" style={{ background: 'var(--teal-dark, #005B96)', color: 'white', padding: '12px', borderRadius: '12px', border: 'none', fontWeight: 600, cursor: 'pointer' }}>
                   Post to Feed
                 </button>
               </form>

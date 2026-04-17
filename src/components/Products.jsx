@@ -303,12 +303,12 @@ export default function Products() {
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   return (
-    <section id="products" className="section" style={{ background: 'var(--clr-bg-primary)' }}>
+    <section id="products" className="section" style={{ background: 'linear-gradient(180deg, #edf7fa 0%, #f8fcfd 100%)' }}>
       <div className="container">
         
         <div style={{ textAlign: 'center', marginBottom: isMobile ? '2.5rem' : '4rem' }}>
           <span className="section-tag">{t('prod.tag')}</span>
-          <h2 className="text-title" style={{ fontSize: isMobile ? '2rem' : undefined }}>{t('prod.title')}</h2>
+          <h2 className="text-title" style={{ fontSize: isMobile ? '2rem' : undefined, marginBottom: '0.75rem' }}>{t('prod.title')}</h2>
           <p className="text-subtitle" style={{ margin: '0 auto', fontSize: isMobile ? '0.9rem' : undefined }}>
             {t('prod.desc')}
           </p>
@@ -338,10 +338,11 @@ export default function Products() {
                 cursor: 'pointer', 
                 display: 'flex', 
                 flexDirection: 'column',
-                borderRadius: isMobile ? '16px' : 'var(--radius-lg)',
+                borderRadius: isMobile ? '20px' : '24px',
                 overflow: 'hidden',
                 flex: isMobile ? '0 0 85%' : 'unset',
-                scrollSnapAlign: isMobile ? 'center' : 'none'
+                scrollSnapAlign: isMobile ? 'center' : 'none',
+                background: 'rgba(255,255,255,0.9)'
               }}
               onClick={() => setActiveProduct(product)}
             >
@@ -365,7 +366,7 @@ export default function Products() {
                 <div style={{ color: 'var(--clr-orange)', fontSize: isMobile ? '0.65rem' : '0.75rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '0.25rem' }}>
                   {t(product.subtitle)}
                 </div>
-                <h3 style={{ fontFamily: "'Poppins', sans-serif", fontSize: isMobile ? '1.4rem' : '1.8rem', fontWeight: 700, color: 'var(--clr-teal-dark)', marginBottom: '0.5rem', lineHeight: 1.2 }}>
+                <h3 style={{ fontFamily: "'Caveat', cursive", fontSize: isMobile ? '2rem' : '2.35rem', fontWeight: 700, color: 'var(--clr-teal-dark)', marginBottom: '0.45rem', lineHeight: 1 }}>
                   {t(product.name)}
                 </h3>
                 {!isMobile && (
@@ -387,17 +388,17 @@ export default function Products() {
       {activeProduct && (
         <div style={{
           position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem'
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'max(1rem, env(safe-area-inset-top)) 1rem 1rem'
         }} onClick={() => setActiveProduct(null)}>
           
           <div style={{ 
-            background: '#fff', width: '100%', maxWidth: '800px', borderRadius: 'var(--radius-lg)', 
+            background: 'rgba(255,255,255,0.96)', width: '100%', maxWidth: '860px', borderRadius: '24px', 
             overflow: 'hidden', display: 'flex', flexDirection: 'column', maxHeight: '90vh'
           }} onClick={e => e.stopPropagation()}>
             
             {/* Top: 3D Interactive Viewer Area */}
             <div style={{ 
-              height: '300px', background: 'linear-gradient(135deg, var(--clr-teal-dark), var(--clr-ocean))',
+              height: isMobile ? '220px' : '300px', background: 'linear-gradient(135deg, var(--clr-teal-dark), var(--clr-ocean))',
               position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff'
             }}>
               <button 
@@ -417,12 +418,12 @@ export default function Products() {
             </div>
 
             {/* Bottom: Clean Data */}
-            <div style={{ padding: '2rem', overflowY: 'auto' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: '3rem', fontWeight: 700, color: 'var(--clr-teal-dark)', lineHeight: 1 }}>
+            <div style={{ padding: isMobile ? '1rem' : '2rem', overflowY: 'auto' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: isMobile ? 'flex-start' : 'center', flexDirection: isMobile ? 'column' : 'row', marginBottom: '1rem', gap: '0.6rem' }}>
+                <h2 style={{ fontFamily: "'Caveat', cursive", fontSize: isMobile ? '2.25rem' : '3rem', fontWeight: 700, color: 'var(--clr-teal-dark)', lineHeight: 1 }}>
                   {t(activeProduct.name)}
                 </h2>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.5rem', color: 'var(--clr-orange-warm)', fontWeight: 700 }}>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: isMobile ? '1rem' : '1.5rem', color: 'var(--clr-orange-warm)', fontWeight: 700 }}>
                   {t(activeProduct.price)}
                 </div>
               </div>
@@ -482,7 +483,7 @@ export default function Products() {
                 </div>
               )}
 
-              <div style={{ marginTop: '3rem', paddingTop: '1.5rem', borderTop: '1px solid var(--clr-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+              <div style={{ marginTop: '2.2rem', paddingTop: '1.2rem', borderTop: '1px solid var(--clr-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
                 <div style={{ fontSize: '0.85rem', color: 'var(--clr-text-muted)', flex: 1 }}>
                   {t('Need bulk pricing? Translated manuals available.')}
                 </div>
