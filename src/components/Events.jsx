@@ -187,19 +187,17 @@ export default function Events() {
     {
       id: 2,
       author: 'Khuong Duy Nguyen',
-      role: 'Business Development Manager — APAC/ISC',
-      location: 'Confier HQ',
-      timeAgo: '2 days ago',
-      images: [
-        'https://images.unsplash.com/photo-1595859703086-130ab7ee6de7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-      ],
+      role: 'Business Development Manager • Aqua Health & Farm Care • APAC/ISC • ADISSEO',
+      location: 'CIPL team & shrimp farms, Andhra Pradesh',
+      timeAgo: 'Featured',
+      images: ['/live/khuong-field-cipl.png', '/live/khuong-training-adisseo.png'],
       caption:
-        'Strong sessions at Confier HQ—aligning on sustainable shrimp culture priorities and next steps for farmer-facing programs.',
+        'Technology training & field visit: Mr. Duy visited the CIPL team to share valuable insights and provide training on the latest technologies in shrimp culture. As part of his visit, he also accompanied the CIPL team to various shrimp farms, offering practical guidance and field-level observations.',
       likes: 124,
       isLiked: false,
       comments: [
-        { id: 201, author: 'FarmPro22', text: 'Great energy in the room—clear takeaways for the field.' },
-        { id: 202, author: 'AquaSpecialist', text: 'Looking forward to rolling this out with partner farms.' }
+        { id: 201, author: 'Confier Field', text: 'Thank you for the ADISSEO sessions and the time on farm with our team.' },
+        { id: 202, author: 'CIPL Aqua', text: 'Clear takeaways on intensive farming controls and nursery-stage focus.' }
       ]
     }
   ]);
