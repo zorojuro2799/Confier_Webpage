@@ -18,7 +18,7 @@ export default function TopDownPond() {
 
     const isMobile = width < 768;
     const scaleFactor = isMobile ? 0.6 : 1;
-    const mouse = { x: -1000, y: -1000, radius: isMobile ? 150 : 300 };
+    const mouse = { x: -1000, y: -1000, radius: isMobile ? 190 : 340 };
 
     // Helpers for softer blending (avoid harsh “metallic/tiger” contrast)
     const hexToRgba = (hex, alpha) => {
@@ -80,6 +80,7 @@ export default function TopDownPond() {
         
         this.swimCycle = Math.random() * Math.PI * 2;
         this.targetAngle = this.angle;
+        this.calmDrift = 0;
         
         // Assign pattern type (7-8 variants)
         this.patternType = Math.floor(Math.random() * 8);
@@ -119,19 +120,25 @@ export default function TopDownPond() {
           const fleeAngle = Math.atan2(dy, dx) + Math.PI;
           
           this.targetAngle = fleeAngle;
-          targetSpeedMultiplier = 1 + (force * 9);
-          this.swimCycle += 0.26 * force;
+          // Stronger immediate response near touch/mouse with smooth easing.
+          targetSpeedMultiplier = 1.25 + (force * 12.5);
+          this.swimCycle += 0.34 * force;
+          this.calmDrift = 0;
+        } else {
+          // Regain calm movement in a few seconds instead of feeling empty.
+          this.calmDrift = Math.min(1, this.calmDrift + 0.012);
+          targetSpeedMultiplier = 1 + (0.45 * (1 - this.calmDrift));
         }
 
-        this.currentSpeedMultiplier += (targetSpeedMultiplier - this.currentSpeedMultiplier) * 0.05;
+        this.currentSpeedMultiplier += (targetSpeedMultiplier - this.currentSpeedMultiplier) * 0.12;
 
         const diff = this.targetAngle - this.angle;
-        this.angle += Math.atan2(Math.sin(diff), Math.cos(diff)) * 0.07;
+        this.angle += Math.atan2(Math.sin(diff), Math.cos(diff)) * 0.11;
 
         const targetVx = Math.cos(this.angle) * this.baseSpeed * this.currentSpeedMultiplier;
         const targetVy = Math.sin(this.angle) * this.baseSpeed * this.currentSpeedMultiplier;
-        this.speedX += (targetVx - this.speedX) * 0.24;
-        this.speedY += (targetVy - this.speedY) * 0.24;
+        this.speedX += (targetVx - this.speedX) * 0.29;
+        this.speedY += (targetVy - this.speedY) * 0.29;
 
         this.x += this.speedX;
         this.y += this.speedY;
@@ -402,7 +409,7 @@ export default function TopDownPond() {
       }
     }
 
-    const shrimpCount = isMobile ? 20 : 38;
+    const shrimpCount = isMobile ? 16 : 30;
     const shrimpFlock = [];
     for (let i = 0; i < shrimpCount; i++) { 
       shrimpFlock.push(new Shrimp());

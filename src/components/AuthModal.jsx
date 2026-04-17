@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { X, Mail, Lock, User, AlertCircle, Loader } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { useLanguage } from '../LanguageContext.jsx';
@@ -14,6 +14,14 @@ export default function AuthModal({ isOpen, onClose }) {
   const { logIn, signUp } = useAuth();
   const { t } = useLanguage();
 
+  useEffect(() => {
+    if (!isOpen) return;
+    // Always open in a predictable state so the dialog feels reliable.
+    setError('');
+    setLoading(false);
+    setIsLogin(true);
+  }, [isOpen]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -22,6 +30,10 @@ export default function AuthModal({ isOpen, onClose }) {
     try {
       if (isLogin) {
         await logIn(email, password);
+        onClose();
+        setEmail('');
+        setPassword('');
+        setFullName('');
       } else {
         if (!fullName.trim()) {
           setError(t('auth.requiredName'));
@@ -35,12 +47,9 @@ export default function AuthModal({ isOpen, onClose }) {
           setEmail('');
           setPassword('');
           setFullName('');
+          setIsLogin(true);
         }, 2000);
       }
-      onClose();
-      setEmail('');
-      setPassword('');
-      setFullName('');
     } catch (err) {
       setError(err.message || 'An error occurred');
     } finally {
